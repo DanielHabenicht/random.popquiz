@@ -1,0 +1,7 @@
+{
+  "name": "popquiz",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
