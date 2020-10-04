@@ -1,3 +1,8 @@
 node_modules
+
+
+# Remove all Data where copyright is not clear
 dist
 data/mock
+**/assets/images
+**/assets/questions.json
