@@ -11,7 +11,7 @@ allQuestions = [
       type: 'basic',
     };
   }),
-  advancedQ.map((q) => {
+  ...advancedQ.map((q) => {
     return {
       ...q,
       type: 'advanced',
