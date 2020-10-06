@@ -19,17 +19,17 @@ export class AppComponent implements OnInit {
     },
     {
       title: 'Basic',
-      url: '/questions/basic',
+      url: '/questions/basic/unanswered',
       icon: 'warning',
     },
     {
       title: 'Advanced',
-      url: '/questions/advanced',
+      url: '/questions/advanced/unanswered',
       icon: 'warning',
     },
     {
       title: 'Failed',
-      url: '/questions/failed',
+      url: '/questions/all/failed',
       icon: 'warning',
     },
   ];

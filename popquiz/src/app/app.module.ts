@@ -15,6 +15,7 @@ import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin';
 import { NgxsStoragePluginModule } from '@ngxs/storage-plugin';
 import { HttpClientModule } from '@angular/common/http';
 import { ServiceWorkerModule } from '@angular/service-worker';
+import { QuestionsService } from 'src/app/questions.service';
 
 @NgModule({
   declarations: [AppComponent],
@@ -33,7 +34,7 @@ import { ServiceWorkerModule } from '@angular/service-worker';
     NgxsStoragePluginModule.forRoot(),
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
   ],
-  providers: [StatusBar, SplashScreen, { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
+  providers: [StatusBar, SplashScreen, { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }, QuestionsService],
   bootstrap: [AppComponent],
 })
 export class AppModule {}

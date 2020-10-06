@@ -5,3 +5,22 @@
 .custom-skeleton ion-skeleton-text:last-child {
   margin-bottom: 5px;
 }
+
+.answer {
+  height: 100%;
+  width: 100%;
+  text-align: center;
+  div {
+    margin: auto;
+  }
+}
+
+ion-card-subtitle {
+  text-align: center;
+}
+
+.images {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}

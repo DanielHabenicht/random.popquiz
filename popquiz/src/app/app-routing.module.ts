@@ -3,7 +3,7 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
-    path: 'questions/:slug',
+    path: 'questions/:type/:mode',
     loadChildren: () => import('./question-reel/question-reel.module').then((m) => m.QuestionReelPageModule),
   },
   {

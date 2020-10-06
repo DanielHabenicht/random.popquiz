@@ -2,64 +2,49 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Select, Store } from '@ngxs/store';
 import { Observable } from 'rxjs';
-import { QuestionsState, QuestionsStateEnum, SetQuestionsState } from 'src/app/state/questions.state';
+import { QuestionsState, QuestionsStateEnum, QuizMode, SetQuestionsState } from 'src/app/state/questions.state';
 import { HttpClient } from '@angular/common/http';
-import { Question } from '../types/questions';
+import { Question, QuestionMode, QuestionType } from '../types/questions';
 import { ToastController } from '@ionic/angular';
+import { QuestionsService } from 'src/app/questions.service';
+import { untilComponentDestroyed, OnDestroyMixin} from '@w11k/ngx-componentdestroyed';
 
 @Component({
   selector: 'app-question-reel',
   templateUrl: './question-reel.page.html',
   styleUrls: ['./question-reel.page.scss'],
 })
-export class QuestionReelPage implements OnInit {
-  public mode: QuestionMode;
+export class QuestionReelPage extends OnDestroyMixin implements OnInit {
+  public type: QuestionMode;
+  public mode: QuizMode;
   public currentQuestion: Question;
-  public allQuestions: Question[];
-  public selectableQuestions: Question[];
   public totalAnswers: number;
   public totalQuestions: number;
   @Select(QuestionsState.questionsState) questionsState$: Observable<{ [id: string]: QuestionsStateEnum }>;
   constructor(
     private activatedRoute: ActivatedRoute,
-    private httpClient: HttpClient,
     private store: Store,
-    public toastController: ToastController
-  ) {}
-
-  ngOnInit() {
-    this.mode = this.activatedRoute.snapshot.paramMap.get('slug') as any;
-    this.httpClient.get<Question[]>('assets/questions.json').subscribe((questions) => {
-      this.allQuestions = questions;
-      this.initQuestions();
-    });
+    public toastController: ToastController,
+    private questionService: QuestionsService
+  ) {
+    super();
   }
 
-  public initQuestions() {
-    switch (this.mode) {
-      case 'basic': {
-        this.selectableQuestions = this.allQuestions.filter((q) => q.type === 'basic');
-        this.totalQuestions = this.selectableQuestions.length;
-        break;
-      }
-      case 'advanced': {
-        this.selectableQuestions = this.allQuestions.filter((q) => q.type === 'advanced');
-        this.totalQuestions = this.selectableQuestions.length;
-        break;
-      }
-      case 'failed': {
-        let state = this.store.selectSnapshot(QuestionsState.questionsState);
-        this.selectableQuestions = this.allQuestions.filter((q) => state[q.id] === QuestionsStateEnum.wrong);
-        this.totalQuestions = this.selectableQuestions.length;
-        break;
-      }
-    }
+  ngOnInit() {
+    this.type = this.activatedRoute.snapshot.paramMap.get('type') as any;
+    this.mode = this.activatedRoute.snapshot.paramMap.get('mode') as any;
+    this.questionService
+      .questionCount(this.type)
+      .pipe(untilComponentDestroyed(this))
+      .subscribe((total) => {
+        this.totalQuestions = total;
+      });
     this.nextQuestion();
   }
 
   public async answered(correct: boolean) {
     this.store.dispatch(
-      new SetQuestionsState(this.currentQuestion.id, correct ? QuestionsStateEnum.solved : QuestionsStateEnum.wrong)
+      new SetQuestionsState(this.currentQuestion.id, correct ? QuestionsStateEnum.right : QuestionsStateEnum.wrong)
     );
     const toast = await this.toastController.create({
       message: correct ? 'You answered correct!' : 'This was wrong :/',
@@ -70,12 +55,18 @@ export class QuestionReelPage implements OnInit {
   }
 
   public nextQuestion() {
-    this.currentQuestion = this.selectableQuestions[Math.floor(Math.random() * this.selectableQuestions.length)];
-    let state = this.store.selectSnapshot(QuestionsState.questionsState);
-    this.totalAnswers = this.selectableQuestions.reduce((count, q) => {
-      return count + (state[q.id] ? 1 : 0);
-    }, 0);
+    this.questionService
+      .nextQuestion(this.type, this.mode)
+      .pipe(untilComponentDestroyed(this))
+      .subscribe((question) => {
+        this.currentQuestion = question;
+      });
+
+    this.questionService
+      .questionCount(this.type, QuestionsStateEnum.right)
+      .pipe(untilComponentDestroyed(this))
+      .subscribe((total) => {
+        this.totalAnswers = total;
+      });
   }
 }
-
-export type QuestionMode = 'basic' | 'advanced' | 'failed';

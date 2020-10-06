@@ -1,49 +1,57 @@
 <ion-card>
+  <canvas #stats height="2px" style="width:100%"></canvas>
   <ion-card-header>
     <ion-card-subtitle>{{question?.question}}    <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text></ion-card-subtitle>
-
-
   </ion-card-header>
 
-  <ng-container *ngFor="let picture of question?.pictureUrls">
-    <img [src]="'assets/images/' + picture.url" [title]="picture.title">
-  </ng-container>
-
   <ion-card-content>
+    <div class="images">
+      <div>
+        <img *ngFor="let picture of question?.pictureUrls" [src]="'assets/images/' + picture.url" [title]="picture.title">
+      </div>
+    </div>
     <ion-grid>
       <ion-row>
         <ion-col size="6">
-          <ion-card (click)="answerAction(answers[0])">
+          <ion-card (click)="answerAction(answers[0])" class="answer" [color]="'tertiary'">
             <ion-card-content>
+              <div>
                 <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text>
                 <ng-container *ngIf="question != null">{{answers[0]?.value}}</ng-container>
+              </div>
             </ion-card-content>
           </ion-card>
         </ion-col>
         <ion-col size="6" >
-          <ion-card (click)="answerAction(answers[1])">
+          <ion-card (click)="answerAction(answers[1])" class="answer" [color]="'tertiary'">
             <ion-card-content>
-              <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text>
-              <ng-container *ngIf="question != null">{{answers[1]?.value}}</ng-container>
-            </ion-card-content>
+              <div>
+                <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text>
+                <ng-container *ngIf="question != null">{{answers[1]?.value}}</ng-container>
+              </div>
+              </ion-card-content>
           </ion-card>
         </ion-col>
       </ion-row>
 
       <ion-row>
         <ion-col size="6">
-          <ion-card (click)="answerAction(answers[2])">
+          <ion-card (click)="answerAction(answers[2])" class="answer" [color]="'tertiary'">
             <ion-card-content>
-              <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text>
-              <ng-container *ngIf="question != null">{{answers[2]?.value}}</ng-container>
+              <div>
+                <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text>
+                <ng-container *ngIf="question != null">{{answers[2]?.value}}</ng-container>
+              </div>
             </ion-card-content>
           </ion-card>
         </ion-col>
         <ion-col size="6" >
-          <ion-card (click)="answerAction(answers[3])">
+          <ion-card (click)="answerAction(answers[3])" class="answer" [color]="'tertiary'">
             <ion-card-content>
-              <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text>
-              <ng-container *ngIf="question != null">{{answers[3]?.value}}</ng-container>
+              <div>
+                <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text>
+                <ng-container *ngIf="question != null">{{answers[3]?.value}}</ng-container>
+              </div>
             </ion-card-content>
           </ion-card>
         </ion-col>

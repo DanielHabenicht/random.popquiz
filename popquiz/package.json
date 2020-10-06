@@ -28,6 +28,8 @@
     "@ngxs/logger-plugin": "^3.7.0",
     "@ngxs/storage-plugin": "^3.7.0",
     "@ngxs/store": "^3.7.0",
+    "@w11k/ngx-componentdestroyed": "^5.0.2",
+    "chart.js": "^2.9.3",
     "rxjs": "~6.5.5",
     "tslib": "^2.0.0",
     "zone.js": "~0.10.3"

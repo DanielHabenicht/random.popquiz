@@ -15,8 +15,6 @@ export interface Answer {
   value: string;
   right: boolean;
 }
+export type QuestionType = 'basic' | 'advanced';
 
-export enum QuestionType {
-  basic = 'basic',
-  advanced = 'advanced',
-}
+export type QuestionMode = QuestionType | 'all';

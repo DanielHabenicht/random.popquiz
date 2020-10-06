@@ -8,8 +8,36 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <div class="ion-padding">
+    <ion-card>
+      <ion-card-header>
+        Overall
+      </ion-card-header>
+      <ion-card-content>
+    <canvas #overall></canvas>
+
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        Basic
+      </ion-card-header>
+      <ion-card-content>
+        <canvas #basic></canvas>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        Advanced
+      </ion-card-header>
+      <ion-card-content>
+        <canvas #advanced></canvas>
+      </ion-card-content>
+    </ion-card>
+  </div>
 
   <div id="container">
-
   </div>
 </ion-content>

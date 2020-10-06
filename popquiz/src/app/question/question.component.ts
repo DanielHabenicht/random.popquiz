@@ -1,27 +1,130 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+  ViewChild,
+} from '@angular/core';
 import { Answer, Question } from '../types/questions';
+import { Chart } from 'chart.js';
+import { Store } from '@ngxs/store';
+import { QuestionsState, QuestionState } from '../state/questions.state';
 
 @Component({
   selector: 'app-question',
   templateUrl: './question.component.html',
   styleUrls: ['./question.component.scss'],
 })
-export class QuestionComponent implements OnInit, OnChanges {
+export class QuestionComponent implements AfterViewInit, OnChanges {
+  @ViewChild('stats') stats: ElementRef;
+  private statsChart: Chart = null;
+
   @Input()
   public question: Question;
+  public qState: QuestionState;
   public answers: Answer[] = [];
 
   @Output()
   public answered: EventEmitter<boolean> = new EventEmitter<boolean>();
+  public init = false;
 
-  constructor() {}
+  constructor(private store: Store) {}
   ngOnChanges(changes: SimpleChanges): void {
     if (this.question) {
       this.answers = shuffle(this.question.answers);
     }
+    if (this.init) {
+      this.updateStats();
+    }
   }
 
-  ngOnInit() {}
+  ngAfterViewInit() {
+    this.init = true;
+    this.updateStats();
+  }
+  updateStats() {
+    this.qState = this.store.selectSnapshot(QuestionsState.questionsState)[this.question?.id];
+    if (this.statsChart != null) {
+      (this.statsChart.data.datasets = [
+        {
+          data: [this.qState?.right || 0],
+          backgroundColor: '#00BC43',
+          hoverBackgroundColor: '#00BC43',
+        },
+        {
+          data: [this.qState?.wrong || 0],
+          backgroundColor: '#FF0000',
+          hoverBackgroundColor: '#FF0000',
+        },
+        {
+          data: [!this.qState?.right && !this.qState?.wrong ? 1 : 0],
+          backgroundColor: 'lightgrey',
+          hoverBackgroundColor: 'lightgrey',
+        },
+      ]),
+        this.statsChart.update();
+      return;
+    }
+    this.statsChart = new Chart(this.stats.nativeElement, {
+      type: 'horizontalBar',
+      data: {
+        labels: [],
+        datasets: [
+          {
+            data: [this.qState?.right || 0],
+            backgroundColor: '#00BC43',
+            hoverBackgroundColor: '#00BC43',
+          },
+          {
+            data: [this.qState?.wrong || 0],
+            backgroundColor: '#FF0000',
+            hoverBackgroundColor: '#FF0000',
+          },
+          {
+            data: [!this.qState?.right && !this.qState?.wrong ? 1 : 0],
+            backgroundColor: 'lightgrey',
+            hoverBackgroundColor: 'lightgrey',
+          },
+        ],
+      },
+      options: {
+        responsive: false,
+        animation: {
+          duration: 0, // general animation time
+        },
+        hover: {
+          animationDuration: 0, // duration of animations when hovering an item
+        },
+        responsiveAnimationDuration: 0,
+        showTooltips: false,
+        legend: {
+          display: false, // hides the legend
+        },
+        tooltips: {
+          enabled: false, // hides the tooltip.
+        },
+        scales: {
+          xAxes: [
+            {
+              display: false, // hides the horizontal scale
+              stacked: true, // stacks the bars on the x axis
+            },
+          ],
+          yAxes: [
+            {
+              display: false, // hides the vertical scale
+              stacked: true, // stacks the bars on the y axis
+            },
+          ],
+        },
+      },
+    });
+  }
 
   public answerAction(answer: Answer) {
     this.answered.emit(answer.right);
