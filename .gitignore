@@ -1,5 +1,6 @@
 node_modules
 .firebaserc
+*.cache
 
 # Remove all Data where copyright is not clear
 dist
