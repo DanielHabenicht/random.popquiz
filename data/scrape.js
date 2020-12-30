@@ -19,7 +19,8 @@ function getBaseQuestions() {
       elms.each((index, e) => {
         const q = $(e).text();
         const regex = /(.+)/.exec(q);
-        const qId = $(e).parent().attr('start');
+        const catalogId = $(e).parent().attr('start');
+        const qId = 'basic_' + catalogId;
         const qText = regex[1];
         let images = [];
         let ans = $(e)
@@ -37,7 +38,6 @@ function getBaseQuestions() {
               rp(baseUrl + src, {
                 encoding: 'binary',
               }).then((ans) => {
-                console.log(title);
                 fs.writeFileSync('./dist/images/' + name, ans, { encoding: 'binary' });
               });
             }
@@ -46,10 +46,10 @@ function getBaseQuestions() {
               url: name,
             });
           });
-        //console.log(images);
 
         results.push({
           id: qId,
+          catalogId: catalogId,
           question: qText,
           pictureUrls: images,
           answers: [
@@ -64,8 +64,7 @@ function getBaseQuestions() {
         });
       });
 
-      console.log(results);
-      fs.writeFileSync('./dist/basicQuestions.json', JSON.stringify(results, undefined, jsonSpace));
+      fs.writeFileSync('./dist/basic.json', JSON.stringify(results, undefined, jsonSpace));
     })
     .catch(function (err) {
       throw err;
@@ -90,7 +89,8 @@ function getAdvancedQuestions(catalog) {
           return;
         }
         const regex = /(\d+)\. (.+)/.exec(q);
-        const qId = regex[1];
+        const catalogId = regex[1];
+        const qId = catalog.name + '_' + catalogId;
         const qText = regex[2];
 
         let currElement = $(e);
@@ -108,7 +108,7 @@ function getAdvancedQuestions(catalog) {
               .find('img')
               .each((i, e) => {
                 const src = $(e).attr('src').slice(1);
-                const name = catalog.name + '_' + qId + '_' + pictureIndex + '.gif';
+                const name = qId + '_' + pictureIndex + '.gif';
                 const title = $(e).attr('title');
                 if (src) {
                   rp(baseUrl + src, {
@@ -133,7 +133,7 @@ function getAdvancedQuestions(catalog) {
                 let title = undefined;
                 if (image.length > 0) {
                   const src = image.attr('src').slice(1);
-                  name = catalog.name + '_' + qId + '_answer_' + i + '.gif';
+                  name = qId + '_answer_' + i + '.gif';
                   title = image.attr('title');
                   if (src) {
                     rp(baseUrl + src, {
@@ -156,6 +156,7 @@ function getAdvancedQuestions(catalog) {
         if (ans.length > 0) {
           results.push({
             id: qId,
+            catalogId: catalogId,
             question: qText,
             pictureUrls: images,
             answers: [
@@ -182,19 +183,19 @@ function getAdvancedQuestions(catalog) {
     });
 }
 
-// getBaseQuestions();
+getBaseQuestions();
 questionCatalogs = [
   {
     url: 'http://127.0.0.1:8080/ELWIS%20-%20Spezifische%20Fragen%20See.html',
-    name: 'advancedQuestionsSea',
+    name: 'advanced_sea',
   },
   {
     url: 'http://127.0.0.1:8080/ELWIS%20-%20Spezifische%20Fragen%20Segeln.html',
-    name: 'advancedQuestionsSail',
+    name: 'advanced_sail',
   },
   {
     url: 'http://127.0.0.1:8080/ELWIS%20-%20Spezifische%20Fragen%20Binnen.html',
-    name: 'advancedQuestionsInland',
+    name: 'advanced_inland',
   },
 ];
 questionCatalogs.forEach((catalog) => {
