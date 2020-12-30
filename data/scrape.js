@@ -2,11 +2,13 @@ const rp = require('request-promise');
 const $ = require('cheerio');
 const fs = require('fs');
 
+let jsonSpace = 2;
+
 //const urlbasicQuestion = 'https://www.elwis.de/DE/Sportschifffahrt/Sportbootfuehrerscheine/Fragenkatalog-See/Basisfragen/Basisfragen-node.html';
-const baseUrl = 'http://172.26.16.1:8080';
+const baseUrl = 'http://127.0.0.1:8080';
 
 function getBaseQuestions() {
-  const urlbasicQuestion = 'http://172.26.16.1:8080/ELWIS%20-%20Basisfragen.html';
+  const urlbasicQuestion = 'http://127.0.0.1:8080/ELWIS%20-%20Basisfragen.html';
   rp(urlbasicQuestion)
     .then(function (html) {
       fs.mkdirSync('./dist/', { recursive: true });
@@ -63,7 +65,7 @@ function getBaseQuestions() {
       });
 
       console.log(results);
-      fs.writeFileSync('./dist/basicQuestions.json', JSON.stringify(results));
+      fs.writeFileSync('./dist/basicQuestions.json', JSON.stringify(results, undefined, jsonSpace));
     })
     .catch(function (err) {
       throw err;
@@ -71,10 +73,8 @@ function getBaseQuestions() {
     });
 }
 
-function getAdvancedQuestions() {
-  const urlAdvancedQuestion = 'http://172.26.16.1:8080/ELWIS%20-%20Spezifische%20Fragen%20See.html';
-
-  rp(urlAdvancedQuestion)
+function getAdvancedQuestions(catalog) {
+  rp(catalog.url)
     .then(function (html) {
       fs.mkdirSync('./dist/', { recursive: true });
       fs.mkdirSync('./dist/images/', { recursive: true });
@@ -108,7 +108,7 @@ function getAdvancedQuestions() {
               .find('img')
               .each((i, e) => {
                 const src = $(e).attr('src').slice(1);
-                const name = qId + '_' + pictureIndex + '.gif';
+                const name = catalog.name + '_' + qId + '_' + pictureIndex + '.gif';
                 const title = $(e).attr('title');
                 if (src) {
                   rp(baseUrl + src, {
@@ -127,9 +127,30 @@ function getAdvancedQuestions() {
             ans = currElement
               .find('li')
               .toArray()
-              .map((e) => $(e).text().replace(/\n/g, ''));
+              .map((e, i) => {
+                const image = $(e).find('img');
+                let name = undefined;
+                let title = undefined;
+                if (image.length > 0) {
+                  const src = image.attr('src').slice(1);
+                  name = catalog.name + '_' + qId + '_answer_' + i + '.gif';
+                  title = image.attr('title');
+                  if (src) {
+                    rp(baseUrl + src, {
+                      encoding: 'binary',
+                    }).then((ans) => {
+                      fs.writeFileSync('./dist/images/' + name, ans, { encoding: 'binary' });
+                    });
+                  }
+                }
+
+                return {
+                  value: $(e).text().replace(/\n/g, ''),
+                  image: name,
+                  imageTitle: title,
+                };
+              });
           }
-          pictureIndex += 1;
         } while (!(currElement[0].name == 'ol'));
 
         if (ans.length > 0) {
@@ -139,11 +160,11 @@ function getAdvancedQuestions() {
             pictureUrls: images,
             answers: [
               {
-                value: ans[0],
+                ...ans[0],
                 right: true,
               },
-              ...ans.slice(1).map((e) => {
-                return { value: e, right: false };
+              ...ans.slice(1).map((e, i) => {
+                return { ...e, right: false };
               }),
             ],
           });
@@ -152,13 +173,30 @@ function getAdvancedQuestions() {
         }
       });
 
-      console.log(results.length);
-      fs.writeFileSync('./dist/advancedQuestions.json', JSON.stringify(results));
+      console.log(` ${catalog.name}: ${results.length}`);
+      fs.writeFileSync(`./dist/${catalog.name}.json`, JSON.stringify(results, undefined, jsonSpace));
     })
     .catch(function (err) {
+      console.error(err);
       //handle error
     });
 }
 
-getBaseQuestions();
-// getAdvancedQuestions();
+// getBaseQuestions();
+questionCatalogs = [
+  {
+    url: 'http://127.0.0.1:8080/ELWIS%20-%20Spezifische%20Fragen%20See.html',
+    name: 'advancedQuestionsSea',
+  },
+  {
+    url: 'http://127.0.0.1:8080/ELWIS%20-%20Spezifische%20Fragen%20Segeln.html',
+    name: 'advancedQuestionsSail',
+  },
+  {
+    url: 'http://127.0.0.1:8080/ELWIS%20-%20Spezifische%20Fragen%20Binnen.html',
+    name: 'advancedQuestionsInland',
+  },
+];
+questionCatalogs.forEach((catalog) => {
+  getAdvancedQuestions(catalog);
+});

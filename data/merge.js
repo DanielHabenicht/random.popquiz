@@ -2,7 +2,9 @@ const fs = require('fs');
 
 let basePath = './dist/';
 basicQ = JSON.parse(fs.readFileSync(basePath + 'basicQuestions.json'));
-advancedQ = JSON.parse(fs.readFileSync(basePath + 'advancedQuestions.json'));
+advancedQSea = JSON.parse(fs.readFileSync(basePath + 'advancedQuestionsSea.json'));
+advancedQSail = JSON.parse(fs.readFileSync(basePath + 'advancedQuestionsSail.json'));
+advancedQInland = JSON.parse(fs.readFileSync(basePath + 'advancedQuestionsInland.json'));
 
 allQuestions = [
   ...basicQ.map((q) => {
@@ -11,10 +13,22 @@ allQuestions = [
       type: 'basic',
     };
   }),
-  ...advancedQ.map((q) => {
+  ...advancedQSea.map((q) => {
     return {
       ...q,
       type: 'advanced',
+    };
+  }),
+  ...advancedQSail.map((q) => {
+    return {
+      ...q,
+      type: 'sail',
+    };
+  }),
+  ...advancedQInland.map((q) => {
+    return {
+      ...q,
+      type: 'inland',
     };
   }),
 ];
