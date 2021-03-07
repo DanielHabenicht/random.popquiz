@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { Question, QuestionMode, QuestionType } from '../types/questions';
 import { ToastController } from '@ionic/angular';
 import { QuestionsService } from 'src/app/questions.service';
-import { untilComponentDestroyed, OnDestroyMixin} from '@w11k/ngx-componentdestroyed';
+import { untilComponentDestroyed, OnDestroyMixin } from '@w11k/ngx-componentdestroyed';
 
 @Component({
   selector: 'app-question-reel',
@@ -51,7 +51,9 @@ export class QuestionReelPage extends OnDestroyMixin implements OnInit {
       duration: 2000,
     });
     toast.present();
-    this.nextQuestion();
+    setTimeout(() => {
+      this.nextQuestion();
+    }, 1000);
   }
 
   public nextQuestion() {

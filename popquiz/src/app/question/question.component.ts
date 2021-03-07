@@ -28,6 +28,7 @@ export class QuestionComponent implements AfterViewInit, OnChanges {
   public question: Question;
   public qState: QuestionState;
   public answers: Answer[] = [];
+  public showRight = false;
 
   @Output()
   public answered: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -37,6 +38,7 @@ export class QuestionComponent implements AfterViewInit, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (this.question) {
       this.answers = shuffle(this.question.answers);
+      this.showRight = false;
     }
     if (this.init) {
       this.updateStats();
@@ -127,7 +129,15 @@ export class QuestionComponent implements AfterViewInit, OnChanges {
   }
 
   public answerAction(answer: Answer) {
+    this.showRight = true;
     this.answered.emit(answer.right);
+  }
+
+  public getColor(answer: Answer) {
+    if (this.showRight && answer && answer.right) {
+      return 'success';
+    }
+    return 'tertiary';
   }
 }
 

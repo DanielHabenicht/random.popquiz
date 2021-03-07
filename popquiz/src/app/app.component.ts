@@ -23,13 +23,28 @@ export class AppComponent implements OnInit {
       icon: 'warning',
     },
     {
-      title: 'Advanced',
-      url: '/questions/advanced/unanswered',
+      title: 'Sea',
+      url: '/questions/advanced_sea/unanswered',
+      icon: 'warning',
+    },
+    {
+      title: 'Inland',
+      url: '/questions/advanced_inland/unanswered',
+      icon: 'warning',
+    },
+    {
+      title: 'Sail',
+      url: '/questions/advanced_sail/unanswered',
       icon: 'warning',
     },
     {
       title: 'Failed',
       url: '/questions/all/failed',
+      icon: 'warning',
+    },
+    {
+      title: 'Failed80',
+      url: '/questions/all/failed80',
       icon: 'warning',
     },
   ];

@@ -65,8 +65,14 @@ export class QuestionsService {
           if (type !== 'all') {
             keep = questionDictionary[key].type === type;
           }
-          if (mode !== 'unanswered') {
+          if (mode === 'failed') {
             keep = keep && state[key]?.lastAnswer === QuestionsStateEnum.wrong;
+          }
+          if (mode === 'failed80') {
+            keep = keep && state[key]?.ratio < 0.8;
+          }
+          if (mode === 'unanswered') {
+            keep = keep && state[key]?.lastAnswer !== QuestionsStateEnum.right;
           }
           return keep;
         });

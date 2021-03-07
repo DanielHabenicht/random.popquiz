@@ -13,7 +13,7 @@
     <ion-grid>
       <ion-row>
         <ion-col size="6">
-          <ion-card (click)="answerAction(answers[0])" class="answer" [color]="'tertiary'">
+          <ion-card (click)="answerAction(answers[0])" class="answer" [color]="getColor(answers[0])">
             <ion-card-content>
               <div>
                 <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text>
@@ -23,7 +23,7 @@
           </ion-card>
         </ion-col>
         <ion-col size="6" >
-          <ion-card (click)="answerAction(answers[1])" class="answer" [color]="'tertiary'">
+          <ion-card (click)="answerAction(answers[1])" class="answer" [color]="getColor(answers[1])">
             <ion-card-content>
               <div>
                 <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text>
@@ -36,7 +36,7 @@
 
       <ion-row>
         <ion-col size="6">
-          <ion-card (click)="answerAction(answers[2])" class="answer" [color]="'tertiary'">
+          <ion-card (click)="answerAction(answers[2])" class="answer" [color]="getColor(answers[2])">
             <ion-card-content>
               <div>
                 <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text>
@@ -46,7 +46,7 @@
           </ion-card>
         </ion-col>
         <ion-col size="6" >
-          <ion-card (click)="answerAction(answers[3])" class="answer" [color]="'tertiary'">
+          <ion-card (click)="answerAction(answers[3])" class="answer" [color]="getColor(answers[3])">
             <ion-card-content>
               <div>
                 <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text>

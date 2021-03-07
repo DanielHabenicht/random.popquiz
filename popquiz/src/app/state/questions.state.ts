@@ -33,14 +33,17 @@ export class QuestionsState {
   @Action(SetQuestionsState)
   public serviceWorkerNotificationDisplayed(ctx: StateContext<QuestionsStateModel>, action: SetQuestionsState) {
     const state = ctx.getState();
+    let right = (state.questionsState[action.id]?.right || 0) + (action.state ? 1 : 0);
+    let wrong = (state.questionsState[action.id]?.wrong || 0) + (!action.state ? 1 : 0);
     ctx.setState({
       ...state,
       questionsState: {
         ...state.questionsState,
         [action.id]: {
           lastAnswer: action.state,
-          right: (state.questionsState[action.id]?.right || 0) + (action.state ? 1 : 0),
-          wrong: (state.questionsState[action.id]?.wrong || 0) + (!action.state ? 1 : 0),
+          right: right,
+          wrong: wrong,
+          ratio: wrong !== 0 ? right / wrong : 1,
         },
       },
     });
@@ -51,8 +54,9 @@ export interface QuestionState {
   lastAnswer: QuestionsStateEnum;
   wrong: number;
   right: number;
+  ratio?: number;
 }
 
-export type QuizMode = 'failed' | 'unanswered';
+export type QuizMode = 'failed80' | 'failed' | 'unanswered';
 
 type QuestionStateDictionary = { [id: string]: QuestionState };
