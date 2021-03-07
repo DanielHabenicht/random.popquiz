@@ -15,6 +15,6 @@ export interface Answer {
   value: string;
   right: boolean;
 }
-export type QuestionType = 'basic' | 'advanced';
+export type QuestionType = 'basic' | 'advanced_sea' | 'advanced_sail' | 'advanced_inland';
 
 export type QuestionMode = QuestionType | 'all';

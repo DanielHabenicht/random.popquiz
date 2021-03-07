@@ -16,7 +16,9 @@ import { untilComponentDestroyed, OnDestroyMixin } from '@w11k/ngx-componentdest
 export class DashboardPage extends OnDestroyMixin implements AfterViewInit {
   @ViewChild('overall') overall: ElementRef;
   @ViewChild('basic') basic: ElementRef;
-  @ViewChild('advanced') advanced: ElementRef;
+  @ViewChild('advanced_sea') advanced_sea: ElementRef;
+  @ViewChild('advanced_inland') advanced_inland: ElementRef;
+  @ViewChild('advanced_sail') advanced_sail: ElementRef;
   private overallChart: Chart;
   private basichart: Chart;
   private advancedChart: Chart;
@@ -29,13 +31,17 @@ export class DashboardPage extends OnDestroyMixin implements AfterViewInit {
     forkJoin({
       overall: this.getChart(this.overall, 'all'),
       basic: this.getChart(this.basic, 'basic'),
-      advanced: this.getChart(this.advanced, 'advanced'),
+      advanced_sea: this.getChart(this.advanced_sea, 'advanced_sea'),
+      advanced_inland: this.getChart(this.advanced_inland, 'advanced_inland'),
+      advanced_sail: this.getChart(this.advanced_sail, 'advanced_sail'),
     })
       .pipe(untilComponentDestroyed(this))
       .subscribe((val) => {
         this.overallChart = val.overall;
         this.basic = val.basic;
-        this.advanced = val.advanced;
+        this.advanced_sea = val.advanced_sea;
+        this.advanced_inland = val.advanced_inland;
+        this.advanced_sail = val.advanced_sail;
       });
   }
 
