@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
+import { AboutPage } from './about/about.page';
 
 const routes: Routes = [
   {
@@ -11,8 +12,12 @@ const routes: Routes = [
     loadChildren: () => import('./dashboard/dashboard.module').then((m) => m.DashboardPageModule),
   },
   {
+    path: 'about',
+    component: AboutPage,
+  },
+  {
     path: '',
-    redirectTo: 'dashboard',
+    redirectTo: 'about',
     pathMatch: 'full',
   },
 ];

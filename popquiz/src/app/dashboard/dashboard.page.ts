@@ -55,7 +55,7 @@ export class DashboardPage extends OnDestroyMixin implements AfterViewInit {
         return new Chart(ref.nativeElement, {
           type: 'doughnut',
           data: {
-            labels: ['right', 'wrong', 'unanswered'],
+            labels: ['richtig', 'falsch', 'nicht beantwortet'],
             datasets: [
               {
                 label: '# of Votes',
