@@ -29,6 +29,12 @@ export class QuestionComponent implements AfterViewInit, OnChanges {
   public qState: QuestionState;
   public answers: Answer[] = [];
   public showRight = false;
+  /** Open questions: whether the official answer is shown. */
+  public revealed = false;
+  /** Multiple choice questions with more than one right answer: the answers selected so far. */
+  public selected = new Set<Answer>();
+  public multipleRight = false;
+  private done = false;
 
   @Output()
   public answered: EventEmitter<boolean> = new EventEmitter<boolean>();
@@ -37,9 +43,13 @@ export class QuestionComponent implements AfterViewInit, OnChanges {
   constructor(private store: Store) {}
   ngOnChanges(changes: SimpleChanges): void {
     if (this.question) {
-      this.answers = shuffle(this.question.answers);
-      this.showRight = false;
+      this.answers = this.question.open ? this.question.answers : shuffle([...this.question.answers]);
+      this.multipleRight = !this.question.open && this.answers.filter((a) => a.right).length > 1;
     }
+    this.showRight = false;
+    this.revealed = false;
+    this.selected = new Set<Answer>();
+    this.done = false;
     if (this.init) {
       this.updateStats();
     }
@@ -129,13 +139,56 @@ export class QuestionComponent implements AfterViewInit, OnChanges {
   }
 
   public answerAction(answer: Answer) {
+    if (!answer || this.done) {
+      return;
+    }
+    if (this.multipleRight) {
+      if (this.selected.has(answer)) {
+        this.selected.delete(answer);
+      } else {
+        this.selected.add(answer);
+      }
+      return;
+    }
+    this.finish(answer.right);
+  }
+
+  /** Multiple choice with more than one right answer: correct if exactly the right answers are selected. */
+  public checkSelection() {
+    if (this.done) {
+      return;
+    }
+    this.finish(this.answers.every((a) => a.right === this.selected.has(a)));
+  }
+
+  /** Open questions: show the official answer. */
+  public reveal() {
+    this.revealed = true;
+  }
+
+  /** Open questions: the user rates whether their answer was right. */
+  public selfAssessment(knewIt: boolean) {
+    if (this.done) {
+      return;
+    }
+    this.finish(knewIt);
+  }
+
+  private finish(correct: boolean) {
+    this.done = true;
     this.showRight = true;
-    this.answered.emit(answer.right);
+    this.answered.emit(correct);
   }
 
   public getColor(answer: Answer) {
     if (this.showRight && answer && answer.right) {
       return 'success';
+    }
+    if (this.showRight && answer && this.selected.has(answer)) {
+      return 'danger';
+    }
+    if (answer && this.selected.has(answer)) {
+      return 'primary';
     }
     return 'tertiary';
   }

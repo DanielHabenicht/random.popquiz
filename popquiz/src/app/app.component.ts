@@ -45,6 +45,16 @@ export class AppComponent implements OnInit {
       icon: 'warning',
     },
     {
+      title: 'SKS',
+      url: '/questions/sks/unanswered',
+      icon: 'warning',
+    },
+    {
+      title: 'FKN',
+      url: '/questions/fkn/unanswered',
+      icon: 'warning',
+    },
+    {
       title: 'Falsch beantwortet 80%',
       url: '/questions/all/failed80',
       icon: 'warning',

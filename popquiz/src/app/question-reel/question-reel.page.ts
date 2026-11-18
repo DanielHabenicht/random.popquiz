@@ -61,7 +61,8 @@ export class QuestionReelPage extends OnDestroyMixin implements OnInit {
       .nextQuestion(this.type, this.mode)
       .pipe(untilComponentDestroyed(this))
       .subscribe((question) => {
-        this.currentQuestion = question;
+        // copy so the question component resets even if the same question is picked again
+        this.currentQuestion = question ? { ...question } : question;
       });
 
     this.questionService

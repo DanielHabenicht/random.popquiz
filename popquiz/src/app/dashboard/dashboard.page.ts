@@ -19,6 +19,8 @@ export class DashboardPage extends OnDestroyMixin implements AfterViewInit {
   @ViewChild('advanced_sea') advanced_sea: ElementRef;
   @ViewChild('advanced_inland') advanced_inland: ElementRef;
   @ViewChild('advanced_sail') advanced_sail: ElementRef;
+  @ViewChild('sks') sks: ElementRef;
+  @ViewChild('fkn') fkn: ElementRef;
   private overallChart: Chart;
   private basichart: Chart;
   private advancedChart: Chart;
@@ -34,6 +36,8 @@ export class DashboardPage extends OnDestroyMixin implements AfterViewInit {
       advanced_sea: this.getChart(this.advanced_sea, 'advanced_sea'),
       advanced_inland: this.getChart(this.advanced_inland, 'advanced_inland'),
       advanced_sail: this.getChart(this.advanced_sail, 'advanced_sail'),
+      sks: this.getChart(this.sks, 'sks'),
+      fkn: this.getChart(this.fkn, 'fkn'),
     })
       .pipe(untilComponentDestroyed(this))
       .subscribe((val) => {
@@ -42,6 +46,8 @@ export class DashboardPage extends OnDestroyMixin implements AfterViewInit {
         this.advanced_sea = val.advanced_sea;
         this.advanced_inland = val.advanced_inland;
         this.advanced_sail = val.advanced_sail;
+        this.sks = val.sks;
+        this.fkn = val.fkn;
       });
   }
 
