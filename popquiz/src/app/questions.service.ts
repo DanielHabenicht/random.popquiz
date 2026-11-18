@@ -19,24 +19,24 @@ export class QuestionsService {
     if (this.questionCache) {
       return this.questionCache;
     }
-    return this.httpClient.get<Question[]>('assets/questions.json').pipe(shareReplay(1));
+    this.questionCache = this.httpClient.get<Question[]>('assets/questions.json').pipe(shareReplay(1));
+    return this.questionCache;
   }
 
   public getQuestionsDictionary(): Observable<QuestionDictionary> {
     if (this.questionDictionary) {
       return this.questionDictionary;
     }
-    return this.getQuestions().pipe(
+    this.questionDictionary = this.getQuestions().pipe(
       map((questions) =>
-        questions.reduce((prev, q) => {
-          return {
-            ...prev,
-            [q.id]: q,
-          };
-        }, {})
+        questions.reduce((dictionary, q) => {
+          dictionary[q.id] = q;
+          return dictionary;
+        }, {} as QuestionDictionary)
       ),
       shareReplay(1)
     );
+    return this.questionDictionary;
   }
 
   public questionCount(type: QuestionMode, qState: QuestionsStateEnum = null): Observable<number> {

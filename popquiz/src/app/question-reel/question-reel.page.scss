@@ -1,0 +1,49 @@
+.mode {
+  font-size: 0.75rem;
+  font-weight: normal;
+  opacity: 0.7;
+}
+
+.stats-toolbar {
+  --min-height: 0;
+  padding: 0 16px 8px;
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  font-size: 0.85rem;
+  margin-bottom: 6px;
+
+  .right {
+    color: var(--ion-color-success-shade);
+  }
+  .wrong {
+    color: var(--ion-color-danger);
+  }
+  .open,
+  .total {
+    color: var(--ion-color-medium);
+  }
+}
+
+.bar {
+  display: flex;
+  height: 6px;
+  border-radius: 3px;
+  overflow: hidden;
+  background: var(--ion-color-light-shade);
+
+  .right {
+    background: var(--ion-color-success);
+  }
+  .wrong {
+    background: var(--ion-color-danger);
+  }
+}
+
+.empty {
+  text-align: center;
+  padding: 16px;
+}

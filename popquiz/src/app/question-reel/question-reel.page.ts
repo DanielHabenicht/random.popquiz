@@ -1,13 +1,28 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Select, Store } from '@ngxs/store';
-import { Observable } from 'rxjs';
+import { Store } from '@ngxs/store';
+import { combineLatest } from 'rxjs';
 import { QuestionsState, QuestionsStateEnum, QuizMode, SetQuestionsState } from 'src/app/state/questions.state';
-import { HttpClient } from '@angular/common/http';
-import { Question, QuestionMode, QuestionType } from '../types/questions';
+import { Question, QuestionMode } from '../types/questions';
 import { ToastController } from '@ionic/angular';
 import { QuestionsService } from 'src/app/questions.service';
 import { untilComponentDestroyed, OnDestroyMixin } from '@w11k/ngx-componentdestroyed';
+
+const catalogTitles: { [type in QuestionMode]: string } = {
+  all: 'Alle Fragen',
+  basic: 'Basisfragen',
+  advanced_sea: 'See',
+  advanced_inland: 'Binnen',
+  advanced_sail: 'Segeln',
+  sks: 'SKS',
+  fkn: 'FKN',
+};
+
+const modeTitles: { [mode in QuizMode]: string } = {
+  unanswered: 'Noch nicht richtig beantwortet',
+  failed: 'Zuletzt falsch beantwortet',
+  failed80: 'Weniger als 80 % richtig',
+};
 
 @Component({
   selector: 'app-question-reel',
@@ -18,9 +33,11 @@ export class QuestionReelPage extends OnDestroyMixin implements OnInit {
   public type: QuestionMode;
   public mode: QuizMode;
   public currentQuestion: Question;
-  public totalAnswers: number;
-  public totalQuestions: number;
-  @Select(QuestionsState.questionsState) questionsState$: Observable<{ [id: string]: QuestionsStateEnum }>;
+  public catalogTitle: string;
+  public modeTitle: string;
+  /** Statistics of the catalog, based on the last answer of every question. */
+  public stats = { total: 0, right: 0, wrong: 0, open: 0 };
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private store: Store,
@@ -31,14 +48,33 @@ export class QuestionReelPage extends OnDestroyMixin implements OnInit {
   }
 
   ngOnInit() {
-    this.type = this.activatedRoute.snapshot.paramMap.get('type') as any;
-    this.mode = this.activatedRoute.snapshot.paramMap.get('mode') as any;
-    this.questionService
-      .questionCount(this.type)
+    this.type = this.activatedRoute.snapshot.paramMap.get('type') as QuestionMode;
+    this.mode = this.activatedRoute.snapshot.paramMap.get('mode') as QuizMode;
+    this.catalogTitle = catalogTitles[this.type] || this.type;
+    this.modeTitle = modeTitles[this.mode] || this.mode;
+
+    // update the statistics whenever a question is answered
+    combineLatest([this.questionService.getQuestions(), this.store.select(QuestionsState.questionsState)])
       .pipe(untilComponentDestroyed(this))
-      .subscribe((total) => {
-        this.totalQuestions = total;
+      .subscribe(([questions, state]) => {
+        const stats = { total: 0, right: 0, wrong: 0, open: 0 };
+        for (const q of questions) {
+          if (this.type !== 'all' && q.type !== this.type) {
+            continue;
+          }
+          stats.total++;
+          const lastAnswer = state[q.id]?.lastAnswer;
+          if (lastAnswer === QuestionsStateEnum.right) {
+            stats.right++;
+          } else if (lastAnswer === QuestionsStateEnum.wrong) {
+            stats.wrong++;
+          } else {
+            stats.open++;
+          }
+        }
+        this.stats = stats;
       });
+
     this.nextQuestion();
   }
 
@@ -47,8 +83,9 @@ export class QuestionReelPage extends OnDestroyMixin implements OnInit {
       new SetQuestionsState(this.currentQuestion.id, correct ? QuestionsStateEnum.right : QuestionsStateEnum.wrong)
     );
     const toast = await this.toastController.create({
-      message: correct ? 'You answered correct!' : 'This was wrong :/',
-      duration: 2000,
+      message: correct ? 'Richtig!' : 'Leider falsch.',
+      color: correct ? 'success' : 'danger',
+      duration: 1500,
     });
     toast.present();
     setTimeout(() => {
@@ -63,13 +100,6 @@ export class QuestionReelPage extends OnDestroyMixin implements OnInit {
       .subscribe((question) => {
         // copy so the question component resets even if the same question is picked again
         this.currentQuestion = question ? { ...question } : question;
-      });
-
-    this.questionService
-      .questionCount(this.type, QuestionsStateEnum.right)
-      .pipe(untilComponentDestroyed(this))
-      .subscribe((total) => {
-        this.totalAnswers = total;
       });
   }
 }

@@ -1,16 +1,32 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Questions - {{mode}} ({{totalAnswers}} / {{totalQuestions}})</ion-title>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
+    <ion-title>
+      {{ catalogTitle }}
+      <div class="mode">{{ modeTitle }}</div>
+    </ion-title>
+  </ion-toolbar>
+  <ion-toolbar class="stats-toolbar">
+    <div class="stats" [title]="'Stand der letzten Antwort je Frage (' + stats.total + ' Fragen)'">
+      <span class="right">✓ {{ stats.right }} richtig</span>
+      <span class="wrong">✗ {{ stats.wrong }} falsch</span>
+      <span class="open">{{ stats.open }} offen</span>
+      <span class="total">von {{ stats.total }}</span>
+    </div>
+    <div class="bar" *ngIf="stats.total > 0">
+      <div class="right" [style.width.%]="(100 * stats.right) / stats.total"></div>
+      <div class="wrong" [style.width.%]="(100 * stats.wrong) / stats.total"></div>
+    </div>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-
   <div id="ion-padding">
     <app-question [question]="currentQuestion" (answered)="answered($event)"></app-question>
-
+    <p class="empty" *ngIf="stats.total > 0 && currentQuestion === undefined">
+      Keine Fragen mehr in diesem Modus – gut gemacht!
+    </p>
   </div>
 </ion-content>
