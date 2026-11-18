@@ -78,7 +78,9 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
-    const path = window.location.pathname.split('/')[1];
+    // path relative to the base href (the app is served from a sub path on GitHub Pages)
+    const basePath = new URL(document.baseURI).pathname;
+    const path = window.location.pathname.replace(basePath, '/').split('/')[1];
     if (path !== undefined) {
       this.selectedIndex = this.appPages.findIndex((page) => page.title.toLowerCase() === path.toLowerCase());
     }

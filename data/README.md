@@ -2,11 +2,12 @@
 
 ## Sportbootführerschein (SBF See / Binnen)
 
-Get Catalogs from here: https://www.elwis.de/DE/Sportschifffahrt/Sportbootfuehrerscheine/Sportbootfuehrerscheine-node.html
+The catalogs (Basisfragen, Spezifische Fragen See / Binnen / Segeln) are fetched directly from
+https://www.elwis.de/DE/Sportschifffahrt/Sportbootfuehrerscheine/Sportbootfuehrerscheine-node.html
 
-1. Get Pages with Catalogs from Link above. (Download and but them into the `./mock` folder)
-2. Start `http-server` inside `./mock` folder.
-3. Run `npm run scrape`
+```bash
+npm run scrape
+```
 
 ## Sportküstenschifferschein (SKS)
 

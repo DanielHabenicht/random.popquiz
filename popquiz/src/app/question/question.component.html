@@ -69,6 +69,13 @@
             <ion-card (click)="answerAction(answer)" class="answer" [color]="getColor(answer)">
               <ion-card-content>
                 <div>{{ answer.value }}</div>
+                <img
+                  *ngIf="answer.image"
+                  class="answer-image"
+                  [src]="'assets/images/' + answer.image"
+                  [title]="answer.imageTitle"
+                  [alt]="answer.imageTitle"
+                />
               </ion-card-content>
             </ion-card>
           </ion-col>

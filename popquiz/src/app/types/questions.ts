@@ -24,6 +24,9 @@ export interface PictureUrl {
 export interface Answer {
   value: string;
   right: boolean;
+  /** Optional picture belonging to the answer (e.g. a sound signal). */
+  image?: string;
+  imageTitle?: string;
 }
 export type QuestionType = 'basic' | 'advanced_sea' | 'advanced_sail' | 'advanced_inland' | 'sks' | 'fkn';
 
