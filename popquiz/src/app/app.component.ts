@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import { Platform } from '@ionic/angular';
+import { Platform, ToastController } from '@ionic/angular';
+import { SwUpdate } from '@angular/service-worker';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
 import { environment } from 'src/environments/environment';
@@ -66,8 +67,43 @@ export class AppComponent implements OnInit {
     },
   ];
 
-  constructor(private platform: Platform, private splashScreen: SplashScreen, private statusBar: StatusBar) {
+  constructor(
+    private platform: Platform,
+    private splashScreen: SplashScreen,
+    private statusBar: StatusBar,
+    private swUpdate: SwUpdate,
+    private toastController: ToastController
+  ) {
     this.initializeApp();
+    this.offerUpdates();
+  }
+
+  /**
+   * The service worker serves the cached version and downloads a new one in the background.
+   * Offer to switch to the new version right away instead of only on the next start.
+   */
+  private offerUpdates() {
+    if (!this.swUpdate.isEnabled) {
+      return;
+    }
+    this.swUpdate.available.subscribe(async () => {
+      const toast = await this.toastController.create({
+        message: 'Eine neue Version ist verfügbar.',
+        position: 'bottom',
+        buttons: [
+          {
+            text: 'Aktualisieren',
+            handler: () => {
+              this.swUpdate.activateUpdate().then(() => document.location.reload());
+            },
+          },
+          { text: 'Später', role: 'cancel' },
+        ],
+      });
+      toast.present();
+    });
+    // also check when the app stays open for a long time
+    setInterval(() => this.swUpdate.checkForUpdate(), 60 * 60 * 1000);
   }
 
   initializeApp() {
