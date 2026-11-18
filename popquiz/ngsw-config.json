@@ -16,6 +16,17 @@
       }
     },
     {
+      "name": "questions",
+      "installMode": "prefetch",
+      "updateMode": "prefetch",
+      "resources": {
+        "files": [
+          "/assets/questions.json",
+          "/assets/images/**"
+        ]
+      }
+    },
+    {
       "name": "assets",
       "installMode": "lazy",
       "updateMode": "prefetch",
