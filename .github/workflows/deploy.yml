@@ -4,6 +4,11 @@ on:
   push:
     branches: [master]
   workflow_dispatch:
+    inputs:
+      refresh:
+        description: Ignore cached question catalogs and scrape them again
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -28,15 +33,43 @@ jobs:
             data/package-lock.json
             popquiz/package-lock.json
 
-      # The question catalogs are public but not committed, so they are scraped on every deploy.
+      # The question catalogs are public but not committed, so they are scraped during the deploy.
+      # The results are cached per month (and per version of the scrapers) to not query the
+      # sources (ELWIS, sportbootfuehrerscheine.org) on every push.
+      - name: Compute catalog cache key
+        id: catalog-key
+        run: echo "key=catalogs-$(date -u +%Y-%m)-${{ hashFiles('data/*.js', 'data/package-lock.json') }}" >> "$GITHUB_OUTPUT"
+
+      - name: Restore cached catalogs
+        id: catalog-cache
+        if: ${{ !inputs.refresh }}
+        uses: actions/cache/restore@v4
+        with:
+          path: data/dist
+          key: ${{ steps.catalog-key.outputs.key }}
+
+      - name: Install scraper dependencies
+        working-directory: data
+        run: npm ci
+
       - name: Scrape question catalogs
+        if: steps.catalog-cache.outputs.cache-hit != 'true'
         working-directory: data
         run: |
-          npm ci
           npm run scrape
           npm run scrape:sks
           npm run scrape:fkn
-          npm run merge
+
+      - name: Save catalogs to cache
+        if: steps.catalog-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: data/dist
+          key: ${{ steps.catalog-key.outputs.key }}
+
+      - name: Merge catalogs
+        working-directory: data
+        run: npm run merge
 
       - name: Build app
         working-directory: popquiz
