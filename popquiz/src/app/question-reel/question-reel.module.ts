@@ -8,9 +8,10 @@ import { QuestionReelPageRoutingModule } from './question-reel-routing.module';
 
 import { QuestionReelPage } from './question-reel.page';
 import { QuestionComponentModule } from '../question/question.module';
+import { SharedModule } from '../shared/shared.module';
 
 @NgModule({
-  imports: [CommonModule, FormsModule, IonicModule, QuestionReelPageRoutingModule, QuestionComponentModule],
+  imports: [CommonModule, FormsModule, IonicModule, QuestionReelPageRoutingModule, QuestionComponentModule, SharedModule],
   declarations: [QuestionReelPage],
 })
 export class QuestionReelPageModule {}

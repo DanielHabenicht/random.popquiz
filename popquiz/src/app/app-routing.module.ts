@@ -8,6 +8,10 @@ const routes: Routes = [
     loadChildren: () => import('./question-reel/question-reel.module').then((m) => m.QuestionReelPageModule),
   },
   {
+    path: 'home',
+    loadChildren: () => import('./home/home.module').then((m) => m.HomePageModule),
+  },
+  {
     path: 'dashboard',
     loadChildren: () => import('./dashboard/dashboard.module').then((m) => m.DashboardPageModule),
   },
@@ -17,8 +21,12 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: 'about',
+    redirectTo: 'home',
     pathMatch: 'full',
+  },
+  {
+    path: '**',
+    redirectTo: 'home',
   },
 ];
 

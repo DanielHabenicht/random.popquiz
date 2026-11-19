@@ -1,77 +1,28 @@
-import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { Store } from '@ngxs/store';
-import { Chart } from 'chart.js';
-import { Observable, forkJoin } from 'rxjs';
-import { map } from 'rxjs/operators';
-import { QuestionsService } from '../questions.service';
-import { QuestionsState, QuestionsStateEnum } from '../state/questions.state';
-import { QuestionMode, QuestionType } from '../types/questions';
-import { untilComponentDestroyed, OnDestroyMixin } from '@w11k/ngx-componentdestroyed';
+import { Component } from '@angular/core';
+import { Observable } from 'rxjs';
+import { allQuestions, Catalog, licences, parts } from '../catalogs';
+import { CatalogStats, QuestionsService } from '../questions.service';
+
+interface Row {
+  catalog: Catalog;
+  stats$: Observable<CatalogStats>;
+}
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.page.html',
   styleUrls: ['./dashboard.page.scss'],
 })
-export class DashboardPage extends OnDestroyMixin implements AfterViewInit {
-  @ViewChild('overall') overall: ElementRef;
-  @ViewChild('basic') basic: ElementRef;
-  @ViewChild('advanced_sea') advanced_sea: ElementRef;
-  @ViewChild('advanced_inland') advanced_inland: ElementRef;
-  @ViewChild('advanced_sail') advanced_sail: ElementRef;
-  @ViewChild('sks') sks: ElementRef;
-  @ViewChild('fkn') fkn: ElementRef;
-  private overallChart: Chart;
-  private basichart: Chart;
-  private advancedChart: Chart;
+export class DashboardPage {
+  public groups: { title: string; rows: Row[] }[];
 
-  constructor(private questionService: QuestionsService) {
-    super();
-  }
-
-  ngAfterViewInit() {
-    forkJoin({
-      overall: this.getChart(this.overall, 'all'),
-      basic: this.getChart(this.basic, 'basic'),
-      advanced_sea: this.getChart(this.advanced_sea, 'advanced_sea'),
-      advanced_inland: this.getChart(this.advanced_inland, 'advanced_inland'),
-      advanced_sail: this.getChart(this.advanced_sail, 'advanced_sail'),
-      sks: this.getChart(this.sks, 'sks'),
-      fkn: this.getChart(this.fkn, 'fkn'),
-    })
-      .pipe(untilComponentDestroyed(this))
-      .subscribe((val) => {
-        this.overallChart = val.overall;
-        this.basic = val.basic;
-        this.advanced_sea = val.advanced_sea;
-        this.advanced_inland = val.advanced_inland;
-        this.advanced_sail = val.advanced_sail;
-        this.sks = val.sks;
-        this.fkn = val.fkn;
-      });
-  }
-
-  private getChart(ref: ElementRef, mode: QuestionMode): Observable<Chart> {
-    return forkJoin({
-      count: this.questionService.questionCount(mode),
-      right: this.questionService.questionCount(mode, QuestionsStateEnum.right),
-      wrong: this.questionService.questionCount(mode, QuestionsStateEnum.wrong),
-    }).pipe(
-      map((val) => {
-        return new Chart(ref.nativeElement, {
-          type: 'doughnut',
-          data: {
-            labels: ['richtig', 'falsch', 'nicht beantwortet'],
-            datasets: [
-              {
-                label: '# of Votes',
-                data: [val.right, val.wrong, val.count - val.right - val.wrong],
-                backgroundColor: ['#008450', '#B81D13', '#444444'],
-              },
-            ],
-          },
-        });
-      })
-    );
+  constructor(questionService: QuestionsService) {
+    const rows = (catalogs: Catalog[]) =>
+      catalogs.map((catalog) => ({ catalog, stats$: questionService.stats(catalog) }));
+    this.groups = [
+      { title: 'Gesamt', rows: rows([allQuestions]) },
+      { title: 'Führerscheine', rows: rows(licences) },
+      { title: 'SBF-Fragenkataloge', rows: rows(parts) },
+    ];
   }
 }

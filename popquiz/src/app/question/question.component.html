@@ -1,94 +1,103 @@
-<ion-card>
-  <canvas #stats height="2px" style="width:100%"></canvas>
-  <ion-card-header>
-    <ion-card-subtitle *ngIf="question?.category" class="category">{{ question.category }}</ion-card-subtitle>
-    <ion-card-subtitle class="question-text"
-      >{{ question?.question }} <ion-skeleton-text *ngIf="question == null" animated></ion-skeleton-text
-    ></ion-card-subtitle>
-  </ion-card-header>
+<div class="question">
+  <div class="meta">
+    <span *ngIf="question?.category">{{ question.category }}</span>
+    <span *ngIf="history" class="history">
+      Bisher {{ history.right }}× richtig, {{ history.wrong }}× falsch
+    </span>
+    <span *ngIf="question && !history" class="history">Neue Frage</span>
+  </div>
 
-  <ion-card-content>
-    <div class="images">
-      <div>
-        <img
-          *ngFor="let picture of question?.pictureUrls"
-          [src]="'assets/images/' + picture.url"
-          [title]="picture.title"
-          [alt]="picture.title"
-        />
+  <h2 class="question-text">{{ question?.question }}</h2>
+
+  <div class="images" *ngIf="question?.pictureUrls?.length">
+    <img
+      *ngFor="let picture of question.pictureUrls"
+      [src]="'assets/images/' + picture.url"
+      [title]="picture.title"
+      [alt]="picture.title"
+    />
+  </div>
+
+  <!-- Open question: reveal the official answer and rate yourself -->
+  <ng-container *ngIf="question?.open">
+    <ion-button *ngIf="!revealed" expand="block" (click)="reveal()">
+      Antwort anzeigen <span class="kbd">Leertaste</span>
+    </ion-button>
+    <ng-container *ngIf="revealed">
+      <div class="open-answer">
+        <div class="label">Antwort laut Katalog</div>
+        <div class="text">{{ answers[0]?.value }}</div>
+        <div class="images" *ngIf="question?.answerPictureUrls?.length">
+          <img
+            *ngFor="let picture of question.answerPictureUrls"
+            [src]="'assets/images/' + picture.url"
+            [title]="picture.title"
+            [alt]="picture.title"
+          />
+        </div>
+      </div>
+      <p class="hint">Hättest du das gewusst?</p>
+      <div class="self-assessment">
+        <ion-button expand="block" color="danger" fill="outline" [disabled]="done" (click)="selfAssessment(false)">
+          Nicht gewusst <span class="kbd">N</span>
+        </ion-button>
+        <ion-button expand="block" color="success" [disabled]="done" (click)="selfAssessment(true)">
+          Gewusst <span class="kbd">G</span>
+        </ion-button>
+      </div>
+    </ng-container>
+  </ng-container>
+
+  <!-- Multiple choice -->
+  <ng-container *ngIf="question && !question.open">
+    <p *ngIf="multipleRight && !done" class="hint">Mehrere Antworten können richtig sein – wähle alle richtigen aus.</p>
+    <div class="answers" role="group" aria-label="Antworten">
+      <button
+        *ngFor="let answer of answers; let i = index"
+        type="button"
+        class="answer"
+        [ngClass]="answerState(answer)"
+        [attr.aria-pressed]="multipleRight ? selected.has(answer) : null"
+        [disabled]="done"
+        (click)="answerAction(answer)"
+      >
+        <span class="letter">{{ letters[i] }}</span>
+        <span class="value">
+          {{ answer.value }}
+          <img
+            *ngIf="answer.image"
+            [src]="'assets/images/' + answer.image"
+            [title]="answer.imageTitle"
+            [alt]="answer.imageTitle"
+          />
+        </span>
+      </button>
+    </div>
+    <ion-button
+      *ngIf="multipleRight && !done"
+      expand="block"
+      [disabled]="selected.size === 0"
+      (click)="checkSelection()"
+    >
+      Prüfen <span class="kbd">Enter</span>
+    </ion-button>
+
+    <div *ngIf="done" class="feedback" [class.right]="correct" [class.wrong]="!correct" role="status">
+      <ng-container *ngIf="correct">Richtig!</ng-container>
+      <ng-container *ngIf="!correct">
+        <span>Leider falsch – {{ multipleRight ? 'die richtigen Antworten sind' : 'die richtige Antwort ist' }} grün markiert.</span>
+        <ion-button (click)="goOn()">Weiter <span class="kbd">Enter</span></ion-button>
+      </ng-container>
+    </div>
+  </ng-container>
+
+  <!-- loading -->
+  <ng-container *ngIf="!question">
+    <ion-skeleton-text animated style="width: 80%; height: 20px"></ion-skeleton-text>
+    <div class="answers">
+      <div class="answer skeleton" *ngFor="let i of [0, 1, 2, 3]">
+        <ion-skeleton-text animated></ion-skeleton-text>
       </div>
     </div>
-
-    <!-- Open question: reveal the official answer and rate yourself -->
-    <ng-container *ngIf="question?.open">
-      <ion-button *ngIf="!revealed" expand="block" color="tertiary" (click)="reveal()">Antwort anzeigen</ion-button>
-      <ng-container *ngIf="revealed">
-        <ion-card color="light">
-          <ion-card-content>
-            <div class="open-answer">{{ answers[0]?.value }}</div>
-            <div class="images">
-              <img
-                *ngFor="let picture of question?.answerPictureUrls"
-                [src]="'assets/images/' + picture.url"
-                [title]="picture.title"
-                [alt]="picture.title"
-              />
-            </div>
-          </ion-card-content>
-        </ion-card>
-        <ion-grid>
-          <ion-row>
-            <ion-col size="6">
-              <ion-button expand="block" color="danger" [disabled]="showRight" (click)="selfAssessment(false)"
-                >Nicht gewusst</ion-button
-              >
-            </ion-col>
-            <ion-col size="6">
-              <ion-button expand="block" color="success" [disabled]="showRight" (click)="selfAssessment(true)"
-                >Gewusst</ion-button
-              >
-            </ion-col>
-          </ion-row>
-        </ion-grid>
-      </ng-container>
-    </ng-container>
-
-    <!-- Multiple choice -->
-    <ng-container *ngIf="!question?.open">
-      <p *ngIf="multipleRight" class="hint">Mehrere Antworten können richtig sein.</p>
-      <ion-grid>
-        <ion-row>
-          <ng-container *ngIf="question == null">
-            <ion-col size="6" *ngFor="let i of [0, 1, 2, 3]">
-              <ion-card class="answer" color="tertiary">
-                <ion-card-content><ion-skeleton-text animated></ion-skeleton-text></ion-card-content>
-              </ion-card>
-            </ion-col>
-          </ng-container>
-          <ion-col size="6" *ngFor="let answer of answers">
-            <ion-card (click)="answerAction(answer)" class="answer" [color]="getColor(answer)">
-              <ion-card-content>
-                <div>{{ answer.value }}</div>
-                <img
-                  *ngIf="answer.image"
-                  class="answer-image"
-                  [src]="'assets/images/' + answer.image"
-                  [title]="answer.imageTitle"
-                  [alt]="answer.imageTitle"
-                />
-              </ion-card-content>
-            </ion-card>
-          </ion-col>
-        </ion-row>
-      </ion-grid>
-      <ion-button
-        *ngIf="multipleRight"
-        expand="block"
-        color="tertiary"
-        [disabled]="showRight || selected.size === 0"
-        (click)="checkSelection()"
-        >Prüfen</ion-button
-      >
-    </ng-container>
-  </ion-card-content>
-</ion-card>
+  </ng-container>
+</div>

@@ -1,0 +1,26 @@
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.row-title {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+  margin-bottom: 4px;
+
+  .count {
+    color: var(--ion-color-medium-shade);
+    font-weight: normal;
+  }
+}
+
+ion-item ion-label {
+  white-space: normal;
+}
+
+.note {
+  margin: 8px 16px 24px;
+  font-size: 0.85rem;
+  color: var(--ion-color-medium-shade);
+}

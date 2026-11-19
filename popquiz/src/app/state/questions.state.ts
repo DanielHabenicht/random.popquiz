@@ -8,6 +8,11 @@ export class SetQuestionsState {
   constructor(public id: string, public state: QuestionsStateEnum) {}
 }
 
+/** Forgets all answers. */
+export class ResetQuestionsState {
+  public static readonly type: string = '[Questions State] Reset questions state';
+}
+
 export enum QuestionsStateEnum {
   wrong = 0,
   right = 1,
@@ -47,6 +52,11 @@ export class QuestionsState {
         },
       },
     });
+  }
+
+  @Action(ResetQuestionsState)
+  public reset(ctx: StateContext<QuestionsStateModel>) {
+    ctx.setState({ ...ctx.getState(), questionsState: {} });
   }
 }
 

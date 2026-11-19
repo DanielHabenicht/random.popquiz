@@ -1,0 +1,56 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Übersicht</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page">
+    <p class="intro">Wähle deinen Führerschein. Dein Fortschritt wird auf diesem Gerät gespeichert.</p>
+
+    <ion-card *ngFor="let entry of entries">
+      <ion-card-header>
+        <div class="title">
+          <ion-icon [name]="entry.catalog.icon + '-outline'" aria-hidden="true"></ion-icon>
+          <div>
+            <ion-card-title>{{ entry.catalog.title }}</ion-card-title>
+            <ion-card-subtitle>{{ entry.catalog.subtitle }}</ion-card-subtitle>
+          </div>
+        </div>
+      </ion-card-header>
+      <ion-card-content *ngIf="entry.stats$ | async as stats">
+        <app-progress [stats]="stats"></app-progress>
+        <div class="actions">
+          <ion-button [routerLink]="['/questions', entry.catalog.id, 'unanswered']" routerDirection="root">
+            {{ stats.right > 0 ? 'Weiterlernen' : 'Lernen' }}
+          </ion-button>
+          <ion-button
+            fill="outline"
+            [disabled]="stats.wrong === 0"
+            [routerLink]="['/questions', entry.catalog.id, 'failed']"
+            routerDirection="root"
+          >
+            Fehler wiederholen ({{ stats.wrong }})
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card *ngIf="all.stats$ | async as stats">
+      <ion-card-content class="all">
+        <span>Fehler aus allen Katalogen</span>
+        <ion-button
+          fill="outline"
+          [disabled]="stats.wrong === 0"
+          [routerLink]="['/questions', 'all', 'failed']"
+          routerDirection="root"
+        >
+          Alle Fehler wiederholen ({{ stats.wrong }})
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

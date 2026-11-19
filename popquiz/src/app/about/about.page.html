@@ -1,26 +1,41 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Dashboard</ion-title>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
+    <ion-title>Über die App</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div class="ion-padding">
+  <div class="ion-padding" style="max-width: 800px; margin: 0 auto">
     <ion-card>
       <ion-card-header>
-        <ion-card-title>Hallo und Willkommen!</ion-card-title>
+        <ion-card-title>Hallo und willkommen!</ion-card-title>
       </ion-card-header>
-      <ion-card-content>Danke das du diese App nutzt.</ion-card-content>
+      <ion-card-content>
+        Danke, dass du diese App nutzt. Dein Fortschritt wird nur auf diesem Gerät gespeichert. Nach dem ersten Öffnen
+        funktioniert die App auch ohne Internet.
+      </ion-card-content>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        <ion-card-title>Fragenkataloge</ion-card-title>
+      </ion-card-header>
+      <ion-card-content>
+        Die Fragen stammen aus den amtlichen Katalogen: SBF See/Binnen und SKS von
+        <a href="https://www.elwis.de/DE/Sportschifffahrt/Sportbootfuehrerscheine/Sportbootfuehrerscheine-node.html" target="_blank" rel="noopener">ELWIS</a>,
+        FKN von
+        <a href="https://www.sportbootfuehrerscheine.org/fuehrerscheine-funk/fkn-fachkundenachweis/" target="_blank" rel="noopener">sportbootfuehrerscheine.org</a>.
+      </ion-card-content>
     </ion-card>
 
     <ion-card>
       <ion-card-header>
         <ion-card-title>Ideen und Fehler</ion-card-title>
       </ion-card-header>
-      <ion-card-content> Schreib mir eine <a href="mailto:daniel-habenicht@outlook.de">Email</a>! </ion-card-content>
+      <ion-card-content> Schreib mir eine <a href="mailto:daniel-habenicht@outlook.de">E-Mail</a>! </ion-card-content>
     </ion-card>
   </div>
 </ion-content>

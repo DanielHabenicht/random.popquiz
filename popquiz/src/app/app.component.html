@@ -4,19 +4,36 @@
       <ion-content>
         <ion-list id="inbox-list">
           <ion-list-header>Popquiz</ion-list-header>
-          <ion-note>{{ version }}</ion-note>
+          <ion-note>Bootsführerscheine üben · {{ version }}</ion-note>
 
-          <ion-menu-toggle auto-hide="false" *ngFor="let p of appPages; let i = index">
-            <ion-item
-              (click)="selectedIndex = i"
-              routerDirection="root"
-              [routerLink]="[p.url]"
-              lines="none"
-              detail="false"
-              [class.selected]="selectedIndex == i"
-            >
+          <ion-menu-toggle auto-hide="false" *ngFor="let p of mainPages">
+            <ion-item routerDirection="root" [routerLink]="p.url" routerLinkActive="selected" lines="none" detail="false">
               <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
               <ion-label>{{ p.title }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        </ion-list>
+
+        <ion-list id="labels-list">
+          <ion-list-header>Lernen</ion-list-header>
+          <ion-menu-toggle auto-hide="false" *ngFor="let p of learnPages">
+            <ion-item routerDirection="root" [routerLink]="p.url" routerLinkActive="selected" lines="none" detail="false">
+              <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
+              <ion-label>{{ p.title }}</ion-label>
+            </ion-item>
+          </ion-menu-toggle>
+        </ion-list>
+
+        <ion-list id="settings-list">
+          <ion-list-header>Einstellungen</ion-list-header>
+          <ion-menu-toggle auto-hide="false">
+            <ion-item button lines="none" detail="false" (click)="resetProgress()">
+              <ion-icon slot="start" ios="trash-outline" md="trash-sharp" color="danger"></ion-icon>
+              <ion-label>Fortschritt zurücksetzen</ion-label>
+            </ion-item>
+            <ion-item routerDirection="root" routerLink="/about" routerLinkActive="selected" lines="none" detail="false">
+              <ion-icon slot="start" ios="information-circle-outline" md="information-circle-sharp"></ion-icon>
+              <ion-label>Über die App</ion-label>
             </ion-item>
           </ion-menu-toggle>
         </ion-list>

@@ -117,3 +117,13 @@ ion-note {
 ion-item.selected {
   --color: var(--ion-color-primary);
 }
+ion-menu.md ion-list#settings-list ion-list-header {
+  font-size: 16px;
+  margin-bottom: 18px;
+  color: #757575;
+  min-height: 26px;
+}
+
+ion-menu ion-list#labels-list {
+  border-bottom: 1px solid var(--ion-color-step-150, #d7d8da);
+}

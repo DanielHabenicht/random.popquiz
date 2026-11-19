@@ -1,75 +1,34 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title>Dashboard</ion-title>
     <ion-buttons slot="start">
       <ion-menu-button></ion-menu-button>
     </ion-buttons>
+    <ion-title>Statistik</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <div class="ion-padding">
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Übergreifend</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <canvas #overall></canvas>
-      </ion-card-content>
-    </ion-card>
-
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Basisfragen</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <canvas #basic></canvas>
-      </ion-card-content>
-    </ion-card>
-
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Spezifische Fragen See</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <canvas #advanced_sea></canvas>
-      </ion-card-content>
-    </ion-card>
-
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Spezifische Fragen Binnen</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <canvas #advanced_inland></canvas>
-      </ion-card-content>
-    </ion-card>
-
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Spezifische Fragen Segeln</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <canvas #advanced_sail></canvas>
-      </ion-card-content>
-    </ion-card>
-
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Sportküstenschifferschein (SKS)</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <canvas #sks></canvas>
-      </ion-card-content>
-    </ion-card>
-
-    <ion-card>
-      <ion-card-header>
-        <ion-card-title>Fachkundenachweis Seenotsignalmittel (FKN)</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        <canvas #fkn></canvas>
-      </ion-card-content>
-    </ion-card>
+  <div class="page">
+    <ion-list *ngFor="let group of groups">
+      <ion-list-header>{{ group.title }}</ion-list-header>
+      <ion-item
+        *ngFor="let row of group.rows"
+        button
+        detail
+        [routerLink]="['/questions', row.catalog.id, 'unanswered']"
+        routerDirection="root"
+      >
+        <ion-label>
+          <div class="row-title">
+            <span>{{ row.catalog.title }}</span>
+            <span class="count" *ngIf="row.stats$ | async as stats">{{ stats.right }} / {{ stats.total }}</span>
+          </div>
+          <app-progress [stats]="row.stats$ | async"></app-progress>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+    <p class="note">
+      Gezählt wird jeweils die letzte Antwort einer Frage. Tippe auf einen Katalog, um ihn zu lernen.
+    </p>
   </div>
 </ion-content>

@@ -1,85 +1,100 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Action, createSelector, Selector, State, StateContext, Store } from '@ngxs/store';
-import { Question, QuestionMode, QuestionType } from './types/questions';
-import { QuestionsState, QuestionsStateEnum, QuizMode } from './state/questions.state';
-import { Observable } from 'rxjs';
-import { shareReplay, map } from 'rxjs/operators';
+import { Store } from '@ngxs/store';
+import { Question } from './types/questions';
+import { QuestionsState, QuestionsStateEnum, QuestionState, QuizMode } from './state/questions.state';
+import { combineLatest, Observable } from 'rxjs';
+import { shareReplay, map, take } from 'rxjs/operators';
+import { Catalog } from './catalogs';
+
+export interface CatalogStats {
+  total: number;
+  /** last answer was right */
+  right: number;
+  /** last answer was wrong */
+  wrong: number;
+  /** never answered */
+  open: number;
+}
+
+export interface NextQuestion {
+  question: Question | undefined;
+  /** number of questions left in the selected mode (including the returned one) */
+  remaining: number;
+}
+
+/** How many of the last questions are not asked again right away (if there are enough other questions). */
+const RECENT_HISTORY = 10;
 
 @Injectable({
   providedIn: 'root',
 })
 export class QuestionsService {
-  private questionDictionary: Observable<QuestionDictionary> = null;
   private questionCache: Observable<Question[]> = null;
+  private recent: string[] = [];
 
   constructor(private httpClient: HttpClient, private store: Store) {}
 
   public getQuestions(): Observable<Question[]> {
-    if (this.questionCache) {
-      return this.questionCache;
+    if (!this.questionCache) {
+      this.questionCache = this.httpClient.get<Question[]>('assets/questions.json').pipe(shareReplay(1));
     }
-    this.questionCache = this.httpClient.get<Question[]>('assets/questions.json').pipe(shareReplay(1));
     return this.questionCache;
   }
 
-  public getQuestionsDictionary(): Observable<QuestionDictionary> {
-    if (this.questionDictionary) {
-      return this.questionDictionary;
-    }
-    this.questionDictionary = this.getQuestions().pipe(
-      map((questions) =>
-        questions.reduce((dictionary, q) => {
-          dictionary[q.id] = q;
-          return dictionary;
-        }, {} as QuestionDictionary)
-      ),
-      shareReplay(1)
-    );
-    return this.questionDictionary;
+  public questionsOf(catalog: Catalog): Observable<Question[]> {
+    return this.getQuestions().pipe(map((questions) => questions.filter((q) => catalog.types.includes(q.type))));
   }
 
-  public questionCount(type: QuestionMode, qState: QuestionsStateEnum = null): Observable<number> {
-    return this.getQuestionsDictionary().pipe(
-      map((questionDictionary) => {
-        const state = this.store.selectSnapshot(QuestionsState.questionsState);
-        return Object.keys(questionDictionary).reduce((prev, key) => {
-          if (type !== 'all' && questionDictionary[key].type !== type) {
-            return prev;
+  /** Statistics of a catalog, updated whenever a question is answered. */
+  public stats(catalog: Catalog): Observable<CatalogStats> {
+    return combineLatest([this.questionsOf(catalog), this.store.select(QuestionsState.questionsState)]).pipe(
+      map(([questions, state]) => {
+        const stats: CatalogStats = { total: questions.length, right: 0, wrong: 0, open: 0 };
+        for (const q of questions) {
+          const lastAnswer = state[q.id]?.lastAnswer;
+          if (lastAnswer === QuestionsStateEnum.right) {
+            stats.right++;
+          } else if (lastAnswer === QuestionsStateEnum.wrong) {
+            stats.wrong++;
+          } else {
+            stats.open++;
           }
-          if (qState === null) {
-            return prev + 1;
-          }
-          return prev + (state[key]?.lastAnswer === qState ? 1 : 0);
-        }, 0);
+        }
+        return stats;
       })
     );
   }
 
-  public nextQuestion(type: QuestionMode, mode: QuizMode) {
-    return this.getQuestionsDictionary().pipe(
-      map((questionDictionary) => {
+  /** Picks a random question of the catalog for the given mode, avoiding the recently asked ones. */
+  public nextQuestion(catalog: Catalog, mode: QuizMode): Observable<NextQuestion> {
+    return this.questionsOf(catalog).pipe(
+      take(1),
+      map((questions) => {
         const state = this.store.selectSnapshot(QuestionsState.questionsState);
-        let selection = Object.keys(questionDictionary).filter((key) => {
-          let keep = true;
-          if (type !== 'all') {
-            keep = questionDictionary[key].type === type;
-          }
-          if (mode === 'failed') {
-            keep = keep && state[key]?.lastAnswer === QuestionsStateEnum.wrong;
-          }
-          if (mode === 'failed80') {
-            keep = keep && state[key]?.ratio < 0.8;
-          }
-          if (mode === 'unanswered') {
-            keep = keep && state[key]?.lastAnswer !== QuestionsStateEnum.right;
-          }
-          return keep;
-        });
-        return questionDictionary[selection[Math.floor(Math.random() * selection.length)]];
+        const pool = questions.filter((q) => matchesMode(state[q.id], mode));
+        if (pool.length === 0) {
+          return { question: undefined, remaining: 0 };
+        }
+        const historySize = Math.min(RECENT_HISTORY, pool.length - 1);
+        const recent = new Set(this.recent.slice(0, historySize));
+        const candidates = pool.filter((q) => !recent.has(q.id));
+        const question = candidates[Math.floor(Math.random() * candidates.length)];
+        this.recent = [question.id, ...this.recent.filter((id) => id !== question.id)].slice(0, RECENT_HISTORY);
+        return { question, remaining: pool.length };
       })
     );
   }
 }
 
-type QuestionDictionary = { [key: string]: Question };
+function matchesMode(state: QuestionState | undefined, mode: QuizMode): boolean {
+  switch (mode) {
+    case 'failed':
+      return state?.lastAnswer === QuestionsStateEnum.wrong;
+    case 'failed80':
+      return state?.ratio < 0.8;
+    case 'unanswered':
+    default:
+      return state?.lastAnswer !== QuestionsStateEnum.right;
+  }
+}
