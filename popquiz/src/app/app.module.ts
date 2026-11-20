@@ -11,6 +11,7 @@ import { AppRoutingModule } from './app-routing.module';
 import { environment } from 'src/environments/environment';
 import { NgxsModule } from '@ngxs/store';
 import { QuestionsState } from 'src/app/state/questions.state';
+import { SettingsState } from 'src/app/state/settings.state';
 import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin';
 import { NgxsStoragePluginModule } from '@ngxs/storage-plugin';
 import { HttpClientModule } from '@angular/common/http';
@@ -25,7 +26,7 @@ import { QuestionsService } from 'src/app/questions.service';
     IonicModule.forRoot(),
     AppRoutingModule,
     HttpClientModule,
-    NgxsModule.forRoot([QuestionsState], {
+    NgxsModule.forRoot([QuestionsState, SettingsState], {
       developmentMode: !environment.production,
     }),
     NgxsLoggerPluginModule.forRoot({

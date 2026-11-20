@@ -43,3 +43,40 @@
     margin: 0;
   }
 }
+
+.title-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.hide-button {
+  align-self: flex-start;
+  margin: -4px -8px 0 0;
+  text-transform: none;
+}
+
+.hidden-list {
+  margin: 16px 8px;
+  background: transparent;
+
+  ion-item {
+    --background: transparent;
+  }
+
+  ion-icon[slot='start'] {
+    color: var(--ion-color-medium);
+  }
+}
+
+.only-wide {
+  display: none;
+}
+
+@media (min-width: 576px) {
+  .only-wide {
+    display: inline-block;
+  }
+  .only-narrow {
+    display: none;
+  }
+}

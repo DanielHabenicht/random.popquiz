@@ -11,14 +11,27 @@
   <div class="page">
     <p class="intro">Wähle deinen Führerschein. Dein Fortschritt wird auf diesem Gerät gespeichert.</p>
 
-    <ion-card *ngFor="let entry of entries">
+    <ion-card *ngFor="let entry of visible$ | async">
       <ion-card-header>
         <div class="title">
           <ion-icon [name]="entry.catalog.icon + '-outline'" aria-hidden="true"></ion-icon>
-          <div>
+          <div class="title-text">
             <ion-card-title>{{ entry.catalog.title }}</ion-card-title>
             <ion-card-subtitle>{{ entry.catalog.subtitle }}</ion-card-subtitle>
           </div>
+          <ion-button
+            fill="clear"
+            size="small"
+            color="medium"
+            class="hide-button"
+            (click)="hide(entry.catalog)"
+            [attr.aria-label]="entry.catalog.title + ' ausblenden'"
+            title="Ausblenden, z. B. wenn du diesen Schein schon hast"
+          >
+            <ion-icon slot="icon-only" name="eye-off-outline" class="only-narrow"></ion-icon>
+            <ion-icon slot="start" name="eye-off-outline" class="only-wide"></ion-icon>
+            <span class="only-wide">Ausblenden</span>
+          </ion-button>
         </div>
       </ion-card-header>
       <ion-card-content *ngIf="entry.stats$ | async as stats">
@@ -39,6 +52,10 @@
       </ion-card-content>
     </ion-card>
 
+    <p class="intro" *ngIf="(visible$ | async)?.length === 0">
+      Alle Führerscheine sind ausgeblendet. Blende unten einen wieder ein, um weiterzulernen.
+    </p>
+
     <ion-card *ngIf="all.stats$ | async as stats">
       <ion-card-content class="all">
         <span>Fehler aus allen Katalogen</span>
@@ -52,5 +69,20 @@
         </ion-button>
       </ion-card-content>
     </ion-card>
+
+    <ion-list *ngIf="(hidden$ | async)?.length" class="hidden-list">
+      <ion-list-header>Ausgeblendet</ion-list-header>
+      <ion-item *ngFor="let entry of hidden$ | async" lines="none">
+        <ion-icon slot="start" [name]="entry.catalog.icon + '-outline'" aria-hidden="true"></ion-icon>
+        <ion-label>
+          {{ entry.catalog.title }}
+          <p>{{ entry.catalog.subtitle }}</p>
+        </ion-label>
+        <ion-button slot="end" fill="outline" size="small" (click)="show(entry.catalog)">
+          <ion-icon slot="start" name="eye-outline"></ion-icon>
+          Einblenden
+        </ion-button>
+      </ion-item>
+    </ion-list>
   </div>
 </ion-content>

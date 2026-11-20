@@ -16,7 +16,7 @@
 
         <ion-list id="labels-list">
           <ion-list-header>Lernen</ion-list-header>
-          <ion-menu-toggle auto-hide="false" *ngFor="let p of learnPages">
+          <ion-menu-toggle auto-hide="false" *ngFor="let p of learnPages$ | async">
             <ion-item routerDirection="root" [routerLink]="p.url" routerLinkActive="selected" lines="none" detail="false">
               <ion-icon slot="start" [ios]="p.icon + '-outline'" [md]="p.icon + '-sharp'"></ion-icon>
               <ion-label>{{ p.title }}</ion-label>

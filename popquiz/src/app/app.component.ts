@@ -4,6 +4,8 @@ import { AlertController, Platform, ToastController } from '@ionic/angular';
 import { Store } from '@ngxs/store';
 import { licences } from './catalogs';
 import { ResetQuestionsState } from './state/questions.state';
+import { SettingsState } from './state/settings.state';
+import { map } from 'rxjs/operators';
 import { SwUpdate } from '@angular/service-worker';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
@@ -20,10 +22,15 @@ export class AppComponent {
     { title: 'Übersicht', url: '/home', icon: 'home' },
     { title: 'Statistik', url: '/dashboard', icon: 'stats-chart' },
   ];
-  public learnPages = [
-    ...licences.map((c) => ({ title: c.title, url: `/questions/${c.id}/unanswered`, icon: c.icon })),
-    { title: 'Alle Fehler wiederholen', url: '/questions/all/failed', icon: 'refresh' },
-  ];
+  /** Licences the user has not hidden, plus repeating all mistakes. */
+  public learnPages$ = this.store.select(SettingsState.hiddenCatalogs).pipe(
+    map((hidden) => [
+      ...licences
+        .filter((c) => !hidden.includes(c.id))
+        .map((c) => ({ title: c.title, url: `/questions/${c.id}/unanswered`, icon: c.icon })),
+      { title: 'Alle Fehler wiederholen', url: '/questions/all/failed', icon: 'refresh' },
+    ])
+  );
 
   constructor(
     private platform: Platform,
