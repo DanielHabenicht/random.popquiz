@@ -29,3 +29,10 @@
 ion-alert .alert-button.danger {
   color: var(--ion-color-danger);
 }
+
+/* glossary explanations */
+ion-toast.glossary-toast {
+  --max-width: 600px;
+  --start: 8px;
+  --end: 8px;
+}

@@ -58,15 +58,27 @@
 
     <ion-card *ngIf="all.stats$ | async as stats">
       <ion-card-content class="all">
-        <span>Fehler aus allen Katalogen</span>
-        <ion-button
-          fill="outline"
-          [disabled]="stats.wrong === 0"
-          [routerLink]="['/questions', 'all', 'failed']"
-          routerDirection="root"
-        >
-          Alle Fehler wiederholen ({{ stats.wrong }})
-        </ion-button>
+        <span>Aus allen Katalogen</span>
+        <div class="actions">
+          <ion-button
+            fill="outline"
+            [disabled]="stats.wrong === 0"
+            [routerLink]="['/questions', 'all', 'failed']"
+            routerDirection="root"
+          >
+            Alle Fehler wiederholen ({{ stats.wrong }})
+          </ion-button>
+          <ion-button
+            fill="outline"
+            color="warning"
+            [disabled]="(markedCount$ | async) === 0"
+            [routerLink]="['/questions', 'all', 'marked']"
+            routerDirection="root"
+          >
+            <ion-icon slot="start" name="bookmark"></ion-icon>
+            Markierte üben ({{ markedCount$ | async }})
+          </ion-button>
+        </div>
       </ion-card-content>
     </ion-card>
 

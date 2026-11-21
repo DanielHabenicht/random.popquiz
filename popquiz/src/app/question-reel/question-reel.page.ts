@@ -12,6 +12,7 @@ const modeTitles: { [mode in QuizMode]: string } = {
   unanswered: 'Lernen',
   failed: 'Fehler wiederholen',
   failed80: 'Häufige Fehler',
+  marked: 'Markierte Fragen',
 };
 
 @Component({

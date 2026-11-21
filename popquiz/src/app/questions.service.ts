@@ -66,13 +66,26 @@ export class QuestionsService {
     );
   }
 
+  /** Number of marked questions in a catalog, updated whenever a question is (un)marked. */
+  public markedCount(catalog: Catalog): Observable<number> {
+    return combineLatest([this.questionsOf(catalog), this.store.select(QuestionsState.markedQuestions)]).pipe(
+      map(([questions, marked]) => {
+        const ids = new Set(marked);
+        return questions.filter((q) => ids.has(q.id)).length;
+      })
+    );
+  }
+
   /** Picks a random question of the catalog for the given mode, avoiding the recently asked ones. */
   public nextQuestion(catalog: Catalog, mode: QuizMode): Observable<NextQuestion> {
     return this.questionsOf(catalog).pipe(
       take(1),
       map((questions) => {
         const state = this.store.selectSnapshot(QuestionsState.questionsState);
-        const pool = questions.filter((q) => matchesMode(state[q.id], mode));
+        const marked = new Set(this.store.selectSnapshot(QuestionsState.markedQuestions));
+        const pool = questions.filter((q) =>
+          mode === 'marked' ? marked.has(q.id) : matchesMode(state[q.id], mode)
+        );
         if (pool.length === 0) {
           return { question: undefined, remaining: 0 };
         }

@@ -1,7 +1,8 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, OnChanges, Output } from '@angular/core';
 import { Answer, Question } from '../types/questions';
 import { Store } from '@ngxs/store';
-import { QuestionsState, QuestionState } from '../state/questions.state';
+import { QuestionsState, QuestionState, ToggleMarkedQuestion } from '../state/questions.state';
+import { Observable } from 'rxjs';
 
 /** Time the "Richtig!" feedback is shown before the next question appears. */
 const NEXT_DELAY_RIGHT = 900;
@@ -36,6 +37,7 @@ export class QuestionComponent implements OnChanges {
   public done = false;
   public correct = false;
   private nextTimer: any;
+  public marked$: Observable<string[]> = this.store.select(QuestionsState.markedQuestions);
 
   constructor(private store: Store, private element: ElementRef<HTMLElement>) {}
 
@@ -66,6 +68,12 @@ export class QuestionComponent implements OnChanges {
     }
     this.selected = new Set([answer]);
     this.finish(answer.right);
+  }
+
+  public toggleMarked() {
+    if (this.question) {
+      this.store.dispatch(new ToggleMarkedQuestion(this.question.id));
+    }
   }
 
   /** Multiple choice with more than one right answer: correct if exactly the right answers are selected. */
@@ -126,7 +134,9 @@ export class QuestionComponent implements OnChanges {
     }
     const key = event.key.toLowerCase();
     let handled = true;
-    if (this.question.open) {
+    if (key === 'm') {
+      this.toggleMarked();
+    } else if (this.question.open) {
       if (!this.revealed && (key === ' ' || key === 'enter')) {
         this.reveal();
       } else if (this.revealed && !this.done && key === 'g') {

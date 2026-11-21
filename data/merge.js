@@ -26,6 +26,23 @@ for (const catalog of catalogs) {
   allQuestions.push(...questions.map((q) => ({ ...q, type: catalog.type })));
 }
 
+// short background explanations (own content, not part of the official catalogs), keyed by question id
+const explanationsPath = './explanations';
+if (fs.existsSync(explanationsPath)) {
+  const explanations = {};
+  for (const file of fs.readdirSync(explanationsPath).filter((f) => f.endsWith('.json'))) {
+    Object.assign(explanations, JSON.parse(fs.readFileSync(path.join(explanationsPath, file))));
+  }
+  let added = 0;
+  for (const q of allQuestions) {
+    if (explanations[q.id]) {
+      q.explanation = explanations[q.id];
+      added++;
+    }
+  }
+  console.log(` explanations: ${added}`);
+}
+
 fs.writeFileSync(path.join(basePath, 'questions.json'), JSON.stringify(allQuestions));
 fs.writeFileSync(path.join(assetsPath, 'questions.json'), JSON.stringify(allQuestions));
 

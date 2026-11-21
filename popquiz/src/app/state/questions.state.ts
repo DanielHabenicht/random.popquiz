@@ -13,6 +13,12 @@ export class ResetQuestionsState {
   public static readonly type: string = '[Questions State] Reset questions state';
 }
 
+/** Marks / unmarks a question to practise it again later. */
+export class ToggleMarkedQuestion {
+  public static readonly type: string = '[Questions State] Toggle marked question';
+  constructor(public id: string) {}
+}
+
 export enum QuestionsStateEnum {
   wrong = 0,
   right = 1,
@@ -20,12 +26,15 @@ export enum QuestionsStateEnum {
 
 export interface QuestionsStateModel {
   questionsState: QuestionStateDictionary;
+  /** Ids of questions the user marked to practise again. Not affected by resetting the progress. */
+  markedQuestions?: string[];
 }
 
 @State<QuestionsStateModel>({
   name: 'questionsstate',
   defaults: {
     questionsState: {},
+    markedQuestions: [],
   },
 })
 @Injectable()
@@ -33,6 +42,19 @@ export class QuestionsState {
   @Selector()
   public static questionsState(state: QuestionsStateModel): QuestionStateDictionary {
     return state.questionsState;
+  }
+
+  @Selector()
+  public static markedQuestions(state: QuestionsStateModel): string[] {
+    return state.markedQuestions || [];
+  }
+
+  @Action(ToggleMarkedQuestion)
+  public toggleMarked(ctx: StateContext<QuestionsStateModel>, action: ToggleMarkedQuestion) {
+    const marked = ctx.getState().markedQuestions || [];
+    ctx.patchState({
+      markedQuestions: marked.includes(action.id) ? marked.filter((id) => id !== action.id) : [...marked, action.id],
+    });
   }
 
   @Action(SetQuestionsState)
@@ -67,6 +89,6 @@ export interface QuestionState {
   ratio?: number;
 }
 
-export type QuizMode = 'failed80' | 'failed' | 'unanswered';
+export type QuizMode = 'failed80' | 'failed' | 'unanswered' | 'marked';
 
 type QuestionStateDictionary = { [id: string]: QuestionState };

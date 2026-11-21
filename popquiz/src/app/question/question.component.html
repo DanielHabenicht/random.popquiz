@@ -1,13 +1,28 @@
 <div class="question">
   <div class="meta">
-    <span *ngIf="question?.category">{{ question.category }}</span>
-    <span *ngIf="history" class="history">
-      Bisher {{ history.right }}× richtig, {{ history.wrong }}× falsch
-    </span>
-    <span *ngIf="question && !history" class="history">Neue Frage</span>
+    <div class="meta-text">
+      <span *ngIf="question?.category">{{ question.category }}</span>
+      <span *ngIf="history" class="history">
+        Bisher {{ history.right }}× richtig, {{ history.wrong }}× falsch
+      </span>
+      <span *ngIf="question && !history" class="history">Neue Frage</span>
+    </div>
+    <ion-button
+      *ngIf="question"
+      fill="clear"
+      size="small"
+      class="mark-button"
+      [color]="(marked$ | async)?.includes(question.id) ? 'warning' : 'medium'"
+      [attr.aria-pressed]="(marked$ | async)?.includes(question.id)"
+      title="Frage markieren, um sie später gezielt zu üben (Taste M)"
+      (click)="toggleMarked()"
+    >
+      <ion-icon slot="start" [name]="(marked$ | async)?.includes(question.id) ? 'bookmark' : 'bookmark-outline'"></ion-icon>
+      {{ (marked$ | async)?.includes(question.id) ? 'Markiert' : 'Markieren' }}
+    </ion-button>
   </div>
 
-  <h2 class="question-text">{{ question?.question }}</h2>
+  <h2 class="question-text"><app-glossary-text [text]="question?.question"></app-glossary-text></h2>
 
   <div class="images" *ngIf="question?.pictureUrls?.length">
     <img
@@ -26,7 +41,7 @@
     <ng-container *ngIf="revealed">
       <div class="open-answer">
         <div class="label">Antwort laut Katalog</div>
-        <div class="text">{{ answers[0]?.value }}</div>
+        <div class="text"><app-glossary-text [text]="answers[0]?.value"></app-glossary-text></div>
         <div class="images" *ngIf="question?.answerPictureUrls?.length">
           <img
             *ngFor="let picture of question.answerPictureUrls"
@@ -36,6 +51,7 @@
           />
         </div>
       </div>
+      <ng-container *ngTemplateOutlet="explanation"></ng-container>
       <p class="hint">Hättest du das gewusst?</p>
       <div class="self-assessment">
         <ion-button expand="block" color="danger" fill="outline" [disabled]="done" (click)="selfAssessment(false)">
@@ -63,7 +79,7 @@
       >
         <span class="letter">{{ letters[i] }}</span>
         <span class="value">
-          {{ answer.value }}
+          <app-glossary-text [text]="answer.value"></app-glossary-text>
           <img
             *ngIf="answer.image"
             [src]="'assets/images/' + answer.image"
@@ -81,6 +97,10 @@
     >
       Prüfen <span class="kbd">Enter</span>
     </ion-button>
+
+    <ng-container *ngIf="done">
+      <ng-container *ngTemplateOutlet="explanation"></ng-container>
+    </ng-container>
 
     <div *ngIf="done" class="feedback" [class.right]="correct" [class.wrong]="!correct" role="status">
       <ng-container *ngIf="correct">Richtig!</ng-container>
@@ -101,3 +121,16 @@
     </div>
   </ng-container>
 </div>
+
+<ng-template #explanation>
+  <div class="explanation" *ngIf="question?.explanation">
+    <div class="label">
+      <ion-icon name="bulb-outline" aria-hidden="true"></ion-icon>
+      Hintergrund
+      <span class="source" title="Diese Erklärung ist nicht Teil des amtlichen Fragenkatalogs.">
+        nicht amtlich
+      </span>
+    </div>
+    <div class="text"><app-glossary-text [text]="question.explanation"></app-glossary-text></div>
+  </div>
+</ng-template>

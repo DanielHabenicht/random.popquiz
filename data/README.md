@@ -40,3 +40,9 @@ Run `npm run merge` to combine all scraped catalogs (missing ones are skipped) i
 and copy the images to `popquiz/src/assets/images`.
 
 Node >= 18 is required (uses the built-in `fetch`).
+
+## Explanations
+
+`explanations/*.json` contains short background explanations (own content, not part of the official
+catalogs) keyed by question id, e.g. `"sks_weather_7": "…"`. `npm run merge` adds them to the questions.
+They are shown in the app after answering, marked as "nicht amtlich".

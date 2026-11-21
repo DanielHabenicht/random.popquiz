@@ -23,14 +23,31 @@
 
     <ion-card *ngIf="!loading && !currentQuestion" class="finished">
       <ion-card-content>
-        <ion-icon name="checkmark-circle" color="success" aria-hidden="true"></ion-icon>
-        <h2 *ngIf="mode === 'unanswered'">Alle Fragen richtig beantwortet!</h2>
-        <h2 *ngIf="mode !== 'unanswered'">Keine Fehler mehr zu wiederholen!</h2>
-        <p *ngIf="mode === 'unanswered'">
-          Du hast jede Frage aus „{{ catalog.title }}“ zuletzt richtig beantwortet. Zum Auffrischen kannst du deinen
-          Fortschritt im Menü zurücksetzen.
-        </p>
-        <p *ngIf="mode !== 'unanswered'">Alle Fragen, die du falsch beantwortet hattest, sitzen jetzt.</p>
+        <ion-icon
+          [name]="mode === 'marked' ? 'bookmark-outline' : 'checkmark-circle'"
+          [color]="mode === 'marked' ? 'medium' : 'success'"
+          aria-hidden="true"
+        ></ion-icon>
+        <ng-container [ngSwitch]="mode">
+          <ng-container *ngSwitchCase="'unanswered'">
+            <h2>Alle Fragen richtig beantwortet!</h2>
+            <p>
+              Du hast jede Frage aus „{{ catalog.title }}“ zuletzt richtig beantwortet. Zum Auffrischen kannst du
+              deinen Fortschritt im Menü zurücksetzen.
+            </p>
+          </ng-container>
+          <ng-container *ngSwitchCase="'marked'">
+            <h2>Keine markierten Fragen</h2>
+            <p>
+              Markiere Fragen, bei denen du dir unsicher bist, mit dem Lesezeichen oben rechts an der Frage. Hier kannst
+              du sie dann gezielt wiederholen.
+            </p>
+          </ng-container>
+          <ng-container *ngSwitchDefault>
+            <h2>Keine Fehler mehr zu wiederholen!</h2>
+            <p>Alle Fragen, die du falsch beantwortet hattest, sitzen jetzt.</p>
+          </ng-container>
+        </ng-container>
         <div class="actions">
           <ion-button routerLink="/home" routerDirection="root">Zur Übersicht</ion-button>
           <ion-button

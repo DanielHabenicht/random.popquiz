@@ -12,6 +12,8 @@ export interface Question {
   question: string;
   answers: Answer[];
   pictureUrls: PictureUrl[];
+  /** Short background information (not part of the official catalog). */
+  explanation?: string;
   /** Pictures belonging to the official answer of open questions. */
   answerPictureUrls?: PictureUrl[];
 }

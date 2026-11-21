@@ -29,6 +29,7 @@ export class AppComponent {
         .filter((c) => !hidden.includes(c.id))
         .map((c) => ({ title: c.title, url: `/questions/${c.id}/unanswered`, icon: c.icon })),
       { title: 'Alle Fehler wiederholen', url: '/questions/all/failed', icon: 'refresh' },
+      { title: 'Markierte Fragen üben', url: '/questions/all/marked', icon: 'bookmark' },
     ])
   );
 

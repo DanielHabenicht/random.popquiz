@@ -22,6 +22,7 @@ export class HomePage {
   public visible$: Observable<CatalogEntry[]>;
   public hidden$: Observable<CatalogEntry[]>;
   public all: CatalogEntry;
+  public markedCount$: Observable<number>;
 
   constructor(questionService: QuestionsService, private store: Store, private toastController: ToastController) {
     this.entries = licences.map((catalog) => ({ catalog, stats$: questionService.stats(catalog) }));
@@ -29,6 +30,7 @@ export class HomePage {
     this.visible$ = hiddenIds$.pipe(map((hidden) => this.entries.filter((e) => !hidden.includes(e.catalog.id))));
     this.hidden$ = hiddenIds$.pipe(map((hidden) => this.entries.filter((e) => hidden.includes(e.catalog.id))));
     this.all = { catalog: allQuestions, stats$: questionService.stats(allQuestions) };
+    this.markedCount$ = questionService.markedCount(allQuestions);
   }
 
   public async hide(catalog: Catalog) {
