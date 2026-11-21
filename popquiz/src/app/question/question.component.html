@@ -51,7 +51,6 @@
           />
         </div>
       </div>
-      <ng-container *ngTemplateOutlet="explanation"></ng-container>
       <p class="hint">Hättest du das gewusst?</p>
       <div class="self-assessment">
         <ion-button expand="block" color="danger" fill="outline" [disabled]="done" (click)="selfAssessment(false)">
@@ -61,6 +60,7 @@
           Gewusst <span class="kbd">G</span>
         </ion-button>
       </div>
+      <ng-container *ngTemplateOutlet="explanation"></ng-container>
     </ng-container>
   </ng-container>
 
@@ -98,10 +98,6 @@
       Prüfen <span class="kbd">Enter</span>
     </ion-button>
 
-    <ng-container *ngIf="done">
-      <ng-container *ngTemplateOutlet="explanation"></ng-container>
-    </ng-container>
-
     <div *ngIf="done" class="feedback" [class.right]="correct" [class.wrong]="!correct" role="status">
       <ng-container *ngIf="correct">Richtig!</ng-container>
       <ng-container *ngIf="!correct">
@@ -109,6 +105,9 @@
         <ion-button (click)="goOn()">Weiter <span class="kbd">Enter</span></ion-button>
       </ng-container>
     </div>
+    <ng-container *ngIf="done">
+      <ng-container *ngTemplateOutlet="explanation"></ng-container>
+    </ng-container>
   </ng-container>
 
   <!-- loading -->
@@ -127,8 +126,11 @@
     <div class="label">
       <ion-icon name="bulb-outline" aria-hidden="true"></ion-icon>
       Hintergrund
-      <span class="source" title="Diese Erklärung ist nicht Teil des amtlichen Fragenkatalogs.">
-        nicht amtlich
+      <span
+        class="source"
+        title="Diese Erklärung wurde mit KI erstellt und ist nicht Teil des amtlichen Fragenkatalogs – ohne Gewähr."
+      >
+        KI-generiert
       </span>
     </div>
     <div class="text"><app-glossary-text [text]="question.explanation"></app-glossary-text></div>

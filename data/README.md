@@ -43,6 +43,6 @@ Node >= 18 is required (uses the built-in `fetch`).
 
 ## Explanations
 
-`explanations/*.json` contains short background explanations (own content, not part of the official
+`explanations/*.json` contains short AI-generated background explanations (not part of the official
 catalogs) keyed by question id, e.g. `"sks_weather_7": "…"`. `npm run merge` adds them to the questions.
-They are shown in the app after answering, marked as "nicht amtlich".
+They are AI-generated and shown in the app below the answer buttons, marked as "KI-generiert".

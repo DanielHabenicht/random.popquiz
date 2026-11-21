@@ -26,7 +26,7 @@ for (const catalog of catalogs) {
   allQuestions.push(...questions.map((q) => ({ ...q, type: catalog.type })));
 }
 
-// short background explanations (own content, not part of the official catalogs), keyed by question id
+// short AI-generated background explanations (not part of the official catalogs), keyed by question id
 const explanationsPath = './explanations';
 if (fs.existsSync(explanationsPath)) {
   const explanations = {};
