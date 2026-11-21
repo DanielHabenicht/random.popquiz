@@ -127,3 +127,10 @@ ion-menu.md ion-list#settings-list ion-list-header {
 ion-menu ion-list#labels-list {
   border-bottom: 1px solid var(--ion-color-step-150, #d7d8da);
 }
+
+ion-menu ion-list-header .logo {
+  width: 32px;
+  height: 32px;
+  margin-right: 10px;
+  border-radius: 7px;
+}
