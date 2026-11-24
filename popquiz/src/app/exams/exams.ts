@@ -16,6 +16,8 @@ export interface ExamSheet {
   parts: ExamPart[];
   /** Minimum number of points over all parts (if the sheet is scored as a whole). */
   minPoints?: number;
+  /** With at least this many points (but less than minPoints) an oral exam decides (SKS). */
+  oralMinPoints?: number;
   /** Points per right answer. */
   pointsPerQuestion: number;
   /** Official time limit in minutes (if known). */
@@ -132,6 +134,38 @@ export const examGroups: ExamGroup[] = [
   },
 ];
 
+examGroups.splice(4, 0, {
+  id: 'sks',
+  licenceId: 'sks',
+  title: 'SKS',
+  description:
+    '15 Fragebögen mit je 9 Fragen Navigation, 7 Schifffahrtsrecht, 5 Wetterkunde und 9 Seemannschaft (Antriebsmaschine und unter Segel).',
+  rules:
+    'Jede Frage gibt bis zu 2 Punkte. Ab 39 von 60 Punkten bestanden, 33–38 Punkte: mündliche Nachprüfung. Zeit: 90 Minuten.',
+  note:
+    'Die Verteilung der Fragen auf die Bögen ist nicht amtlich veröffentlicht; sie stammt aus einer Zusammenstellung im Segeln-Forum (Stand 2018). Die Kartenaufgabe der echten Prüfung ist nicht enthalten. Teilpunkte gibt es hier nicht – du bewertest dich selbst.',
+  sheets: Object.keys(sheetNumbers.sks)
+    .sort((a, b) => +a - +b)
+    .map((n) => {
+      const nums = sheetNumbers.sks[n];
+      return {
+        id: `sks_${n}`,
+        groupId: 'sks',
+        title: `Fragebogen ${n}`,
+        pointsPerQuestion: 2,
+        minutes: 90,
+        minPoints: 39,
+        oralMinPoints: 33,
+        parts: [
+          { title: 'Navigation', questionIds: nums.navigation.map((x) => `sks_navigation_${x}`) },
+          { title: 'Schifffahrtsrecht', questionIds: nums.law.map((x) => `sks_law_${x}`) },
+          { title: 'Wetterkunde', questionIds: nums.weather.map((x) => `sks_weather_${x}`) },
+          { title: 'Seemannschaft', questionIds: nums.seamanship1.map((x) => `sks_seamanship1_${x}`) },
+        ],
+      };
+    }),
+});
+
 export function findSheet(id: string): ExamSheet | undefined {
   for (const group of examGroups) {
     const sheet = group.sheets.find((s) => s.id === id);
@@ -161,6 +195,8 @@ export interface ExamResult {
   points: number;
   maxPoints: number;
   passed: boolean;
+  /** Not passed, but enough points for an oral exam. */
+  oral?: boolean;
   parts: ExamPartResult[];
 }
 
@@ -180,6 +216,7 @@ export function scoreSheet(sheet: ExamSheet, isCorrect: (questionId: string) => 
   const total = parts.reduce((sum, p) => sum + p.total, 0);
   const points = correct * sheet.pointsPerQuestion;
   const passed = parts.every((p) => p.passed) && (sheet.minPoints === undefined || points >= sheet.minPoints);
+  const oral = !passed && sheet.oralMinPoints !== undefined && points >= sheet.oralMinPoints;
   return {
     date: new Date().toISOString(),
     correct,
@@ -187,6 +224,7 @@ export function scoreSheet(sheet: ExamSheet, isCorrect: (questionId: string) => 
     points,
     maxPoints: total * sheet.pointsPerQuestion,
     passed,
+    oral,
     parts,
   };
 }

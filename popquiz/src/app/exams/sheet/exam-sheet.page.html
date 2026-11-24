@@ -35,6 +35,8 @@
             <span *ngIf="part.minCorrect">– mindestens {{ part.minCorrect }} richtig</span>
           </li>
           <li *ngIf="sheet.minPoints">Bestanden ab {{ sheet.minPoints }} Punkten</li>
+          <li *ngIf="sheet.oralMinPoints">{{ sheet.oralMinPoints }} – {{ sheet.minPoints - 1 }} Punkte: mündliche Nachprüfung</li>
+          <li *ngIf="sheet.pointsPerQuestion > 1">{{ sheet.pointsPerQuestion }} Punkte pro richtiger Antwort</li>
           <li *ngIf="sheet.minutes">Zeit: {{ sheet.minutes }} Minuten</li>
         </ul>
         <p class="hint">
@@ -136,10 +138,16 @@
 
     <!-- result -->
     <ng-container *ngIf="phase === 'result' && result">
-      <ion-card class="result" [class.passed]="result.passed" [class.failed]="!result.passed">
+      <ion-card class="result" [class.passed]="result.passed" [class.oral]="result.oral" [class.failed]="!result.passed && !result.oral">
         <ion-card-content>
-          <ion-icon [name]="result.passed ? 'checkmark-circle' : 'close-circle'" aria-hidden="true"></ion-icon>
-          <h2>{{ result.passed ? 'Bestanden!' : 'Nicht bestanden' }}</h2>
+          <ion-icon
+            [name]="result.passed ? 'checkmark-circle' : result.oral ? 'help-circle' : 'close-circle'"
+            aria-hidden="true"
+          ></ion-icon>
+          <h2>{{ result.passed ? 'Bestanden!' : result.oral ? 'Mündliche Nachprüfung' : 'Nicht bestanden' }}</h2>
+          <p *ngIf="result.oral" class="score">
+            Mit {{ result.points }} Punkten müsstest du in die mündliche Nachprüfung (ab {{ sheet.minPoints }} Punkten ohne).
+          </p>
           <p class="score">
             {{ result.points }} von {{ result.maxPoints }} Punkten · {{ result.correct }} von {{ result.total }} richtig ·
             {{ formatTime(usedSeconds) }} Minuten

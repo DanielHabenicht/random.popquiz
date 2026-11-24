@@ -6,6 +6,9 @@
  *   https://www.elwis.de/DE/Sportschifffahrt/Sportbootfuehrerscheine/Fragenverteilung-See.pdf
  *   https://www.elwis.de/DE/Sportschifffahrt/Sportbootfuehrerscheine/Fragenverteilung-Binnen.pdf
  * - FKN: questionnaires FKN 001 - 004 in "Anlage 2 zur Prüfungsordnung FKN" (sportbootfuehrerscheine.org)
+ * - SKS: distribution "Stand Sept 18" as published in the Segeln-Forum (not an official publication),
+ *   https://www.segeln-forum.de/thread/95318-sks-fragen-lernen-mit-karteikarten/ – two duplicated numbers removed.
+ *   Numbers per subject of the SKS catalog (Seemannschaft I = Antriebsmaschine und unter Segel).
  *
  * Numbers are the official catalog numbers (SBF: 1-72 Basisfragen, See 73-285, Binnen 73-253, Segeln 254-300).
  */
@@ -83,5 +86,22 @@ export const sheetNumbers = {
     '2': [2, 7, 11, 13, 20, 24, 26, 28, 31, 34, 38, 46, 51, 57, 59],
     '3': [3, 6, 10, 15, 19, 22, 30, 32, 36, 39, 42, 44, 50, 52, 58],
     '4': [4, 8, 9, 16, 17, 25, 27, 35, 40, 43, 45, 48, 49, 53, 55],
+  },
+  sks: {
+    '1': { navigation: [9, 19, 30, 41, 71, 83, 101, 106, 114], law: [2, 25, 38, 54, 77, 92, 103], weather: [11, 16, 35, 43, 73], seamanship1: [23, 55, 86, 109, 119, 125, 131, 153, 159] },
+    '2': { navigation: [16, 20, 31, 47, 69, 85, 90, 103, 107], law: [10, 30, 41, 57, 78, 88, 96], weather: [12, 17, 23, 37, 74], seamanship1: [22, 51, 60, 110, 121, 127, 140, 147, 163] },
+    '3': { navigation: [2, 21, 32, 44, 51, 72, 89, 107, 108], law: [5, 18, 24, 52, 62, 90, 108], weather: [7, 24, 56, 62, 79], seamanship1: [33, 38, 41, 57, 79, 101, 120, 138, 157] },
+    '4': { navigation: [3, 14, 35, 53, 58, 76, 98, 109, 117], law: [6, 19, 23, 68, 81, 95, 107], weather: [28, 59, 72, 93, 101], seamanship1: [15, 36, 45, 61, 67, 80, 94, 134, 160] },
+    '5': { navigation: [6, 23, 38, 52, 60, 66, 73, 94, 110], law: [3, 20, 28, 43, 69, 86, 105], weather: [4, 33, 66, 96, 99], seamanship1: [6, 12, 37, 62, 72, 104, 106, 155, 163] },
+    '6': { navigation: [12, 22, 39, 42, 56, 67, 84, 97, 110], law: [14, 21, 27, 44, 83, 91, 110], weather: [29, 47, 60, 66, 95], seamanship1: [1, 7, 28, 39, 70, 81, 93, 135, 161] },
+    '7': { navigation: [4, 26, 33, 49, 64, 81, 99, 102, 111], law: [7, 22, 31, 40, 64, 94, 103], weather: [13, 26, 50, 70, 90], seamanship1: [8, 10, 17, 31, 40, 87, 100, 131, 154] },
+    '8': { navigation: [5, 25, 36, 54, 70, 76, 79, 96, 112], law: [15, 26, 48, 52, 67, 68, 98], weather: [2, 15, 52, 64, 88], seamanship1: [18, 42, 55, 75, 97, 111, 115, 126, 156] },
+    '9': { navigation: [26, 30, 48, 53, 62, 77, 93, 104, 112], law: [4, 32, 46, 58, 69, 71, 93], weather: [1, 25, 42, 81, 89], seamanship1: [26, 43, 54, 108, 112, 124, 136, 144, 157] },
+    '10': { navigation: [10, 33, 38, 40, 44, 73, 75, 95, 102], law: [5, 14, 17, 29, 60, 84, 92], weather: [6, 32, 58, 75, 78], seamanship1: [13, 44, 64, 73, 83, 102, 113, 123, 156] },
+    '11': { navigation: [7, 17, 28, 45, 59, 74, 87, 93, 105], law: [8, 33, 42, 55, 65, 75, 97], weather: [5, 20, 39, 55, 76], seamanship1: [2, 21, 35, 52, 71, 91, 107, 122, 141] },
+    '12': { navigation: [8, 18, 29, 45, 61, 78, 88, 106, 116], law: [9, 35, 45, 56, 70, 79, 101], weather: [8, 21, 40, 57, 80], seamanship1: [3, 25, 46, 53, 76, 92, 114, 137, 143] },
+    '13': { navigation: [11, 24, 34, 50, 63, 80, 91, 105, 115], law: [11, 36, 49, 59, 72, 80, 104], weather: [9, 22, 44, 61, 85], seamanship1: [4, 27, 47, 58, 78, 98, 116, 129, 146] },
+    '14': { navigation: [1, 15, 37, 55, 65, 82, 92, 110, 118], law: [13, 37, 50, 61, 73, 82, 106], weather: [14, 27, 51, 65, 94], seamanship1: [5, 29, 48, 59, 84, 103, 117, 130, 150] },
+    '15': { navigation: [13, 27, 43, 57, 68, 86, 100, 102, 111], law: [16, 39, 51, 63, 74, 87, 96], weather: [19, 34, 53, 68, 98], seamanship1: [14, 34, 49, 63, 85, 105, 118, 132, 152] },
   },
 };

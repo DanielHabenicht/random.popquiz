@@ -59,6 +59,11 @@
     background: rgba(var(--ion-color-danger-rgb), 0.1);
   }
 
+  &.oral {
+    border-color: var(--ion-color-warning);
+    background: rgba(var(--ion-color-warning-rgb), 0.15);
+  }
+
   &:focus-visible {
     outline: 3px solid rgba(var(--ion-color-primary-rgb), 0.5);
   }
@@ -87,6 +92,11 @@
     &.failed {
       border-color: var(--ion-color-danger);
       background: rgba(var(--ion-color-danger-rgb), 0.3);
+    }
+
+    &.oral {
+      border-color: var(--ion-color-warning);
+      background: rgba(var(--ion-color-warning-rgb), 0.4);
     }
   }
 }
