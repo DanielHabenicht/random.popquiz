@@ -1,0 +1,62 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Prüfungsbögen</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page">
+    <p class="intro">
+      Übe mit den amtlichen Fragebögen wie in der echten Prüfung: erst alle Fragen beantworten, dann abgeben und auswerten.
+      Deine Antworten fließen auch in deinen Lernfortschritt ein.
+    </p>
+
+    <ng-container *ngIf="results$ | async as results">
+      <ion-card *ngFor="let view of groups$ | async">
+        <ion-card-header>
+          <ion-card-title>{{ view.group.title }}</ion-card-title>
+          <ion-card-subtitle>{{ view.passedCount }} von {{ view.group.sheets.length }} bestanden</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <p>{{ view.group.description }}</p>
+          <p class="rules">{{ view.group.rules }}</p>
+          <p class="note" *ngIf="view.group.note">{{ view.group.note }}</p>
+          <div class="sheets">
+            <a
+              *ngFor="let sheet of view.group.sheets"
+              class="sheet"
+              [class.passed]="results[sheet.id]?.last?.passed"
+              [class.failed]="results[sheet.id] && !results[sheet.id].last.passed"
+              [routerLink]="['/exams', sheet.id]"
+              routerDirection="forward"
+              [attr.aria-label]="
+                sheet.title +
+                (results[sheet.id]
+                  ? results[sheet.id].last.passed
+                    ? ', zuletzt bestanden'
+                    : ', zuletzt nicht bestanden'
+                  : ', noch nicht bearbeitet')
+              "
+            >
+              <span class="number">{{ label(sheet.title) }}</span>
+              <span class="score" *ngIf="results[sheet.id] as r">{{ r.last.points }}/{{ r.last.maxPoints }}</span>
+            </a>
+          </div>
+          <div class="legend">
+            <span><i class="dot passed"></i> zuletzt bestanden</span>
+            <span><i class="dot failed"></i> zuletzt nicht bestanden</span>
+            <span><i class="dot"></i> offen</span>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </ng-container>
+
+    <p class="intro" *ngIf="(groups$ | async)?.length === 0">
+      Alle Führerscheine mit Prüfungsbögen sind ausgeblendet. Du kannst sie auf der Übersicht wieder einblenden.
+    </p>
+    <p class="intro">Für den SKS sind keine amtlichen Fragebögen veröffentlicht.</p>
+  </div>
+</ion-content>

@@ -1,0 +1,209 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/exams" text=""></ion-back-button>
+    </ion-buttons>
+    <ion-title>
+      {{ group?.title }}
+      <div class="subtitle">{{ sheet?.title }}</div>
+    </ion-title>
+    <ion-buttons slot="end" *ngIf="phase === 'running'">
+      <ion-button (click)="submit()">Abgeben</ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="page">
+    <!-- unknown sheet -->
+    <ion-card *ngIf="!loading && !sheet">
+      <ion-card-content>
+        Diesen Fragebogen gibt es nicht. <a routerLink="/exams">Zu den Prüfungsbögen</a>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- intro -->
+    <ion-card *ngIf="sheet && phase === 'intro'">
+      <ion-card-header>
+        <ion-card-title>{{ sheet.title }}</ion-card-title>
+        <ion-card-subtitle>{{ group.title }}</ion-card-subtitle>
+      </ion-card-header>
+      <ion-card-content>
+        <ul class="facts">
+          <li *ngFor="let part of sheet.parts">
+            {{ part.questionIds.length }} {{ part.title }}
+            <span *ngIf="part.minCorrect">– mindestens {{ part.minCorrect }} richtig</span>
+          </li>
+          <li *ngIf="sheet.minPoints">Bestanden ab {{ sheet.minPoints }} Punkten</li>
+          <li *ngIf="sheet.minutes">Zeit: {{ sheet.minutes }} Minuten</li>
+        </ul>
+        <p class="hint">
+          Du bekommst erst nach dem Abgeben eine Auswertung. Bis dahin kannst du zwischen den Fragen wechseln und
+          Antworten ändern.
+        </p>
+        <p class="hint" *ngIf="group.note">{{ group.note }}</p>
+        <ion-button expand="block" (click)="start()">Prüfung starten</ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- running -->
+    <ng-container *ngIf="phase === 'running' && current as item">
+      <div class="status">
+        <span>Frage {{ index + 1 }} von {{ items.length }} · {{ answeredCount }} beantwortet</span>
+        <span class="time" [class.over]="overTime">
+          {{ formatTime(elapsedSeconds) }}<ng-container *ngIf="sheet.minutes"> / {{ sheet.minutes }}:00</ng-container>
+        </span>
+      </div>
+      <div class="navigator" role="navigation" aria-label="Fragen">
+        <button
+          *ngFor="let it of items; let i = index"
+          type="button"
+          [class.answered]="isAnswered(it)"
+          [class.current]="i === index"
+          [attr.aria-current]="i === index ? 'step' : null"
+          [attr.aria-label]="'Frage ' + (i + 1) + (isAnswered(it) ? ', beantwortet' : '')"
+          (click)="goTo(i)"
+        >
+          {{ i + 1 }}
+        </button>
+      </div>
+
+      <ion-card>
+        <div class="question">
+          <div class="meta">
+            {{ item.partTitle }}<ng-container *ngIf="item.question.category"> · {{ item.question.category }}</ng-container>
+          </div>
+          <h2 class="question-text"><app-glossary-text [text]="item.question.question"></app-glossary-text></h2>
+          <div class="images" *ngIf="item.question.pictureUrls?.length">
+            <img
+              *ngFor="let picture of item.question.pictureUrls"
+              [src]="'assets/images/' + picture.url"
+              [title]="picture.title"
+              [alt]="picture.title"
+            />
+          </div>
+
+          <!-- open question -->
+          <ng-container *ngIf="item.question.open">
+            <ion-button *ngIf="!item.revealed" expand="block" fill="outline" (click)="item.revealed = true">
+              Antwort aufdecken und selbst bewerten
+            </ion-button>
+            <ng-container *ngIf="item.revealed">
+              <div class="open-answer">
+                <div class="label">Antwort laut Katalog</div>
+                <div class="text"><app-glossary-text [text]="item.answers[0]?.value"></app-glossary-text></div>
+              </div>
+              <div class="self-assessment">
+                <button type="button" class="answer" [class.wrong]="item.knewIt === false" (click)="item.knewIt = false">
+                  Nicht gewusst
+                </button>
+                <button type="button" class="answer" [class.right]="item.knewIt === true" (click)="item.knewIt = true">
+                  Gewusst
+                </button>
+              </div>
+            </ng-container>
+          </ng-container>
+
+          <!-- multiple choice -->
+          <ng-container *ngIf="!item.question.open">
+            <p *ngIf="item.multipleRight" class="hint">Mehrere Antworten können richtig sein.</p>
+            <div class="answers" role="group" aria-label="Antworten">
+              <button
+                *ngFor="let answer of item.answers; let i = index"
+                type="button"
+                class="answer"
+                [ngClass]="answerClass(item, answer)"
+                [attr.aria-pressed]="item.selected.has(answer)"
+                (click)="select(item, answer)"
+              >
+                <span class="letter">{{ letters[i] }}</span>
+                <span class="value">
+                  <app-glossary-text [text]="answer.value"></app-glossary-text>
+                  <img *ngIf="answer.image" [src]="'assets/images/' + answer.image" [alt]="answer.imageTitle" />
+                </span>
+              </button>
+            </div>
+          </ng-container>
+
+          <div class="nav">
+            <ion-button fill="outline" [disabled]="index === 0" (click)="goTo(index - 1)">Zurück</ion-button>
+            <ion-button *ngIf="index < items.length - 1" (click)="goTo(index + 1)">Weiter</ion-button>
+            <ion-button *ngIf="index === items.length - 1" color="success" (click)="submit()">Abgeben</ion-button>
+          </div>
+        </div>
+      </ion-card>
+    </ng-container>
+
+    <!-- result -->
+    <ng-container *ngIf="phase === 'result' && result">
+      <ion-card class="result" [class.passed]="result.passed" [class.failed]="!result.passed">
+        <ion-card-content>
+          <ion-icon [name]="result.passed ? 'checkmark-circle' : 'close-circle'" aria-hidden="true"></ion-icon>
+          <h2>{{ result.passed ? 'Bestanden!' : 'Nicht bestanden' }}</h2>
+          <p class="score">
+            {{ result.points }} von {{ result.maxPoints }} Punkten · {{ result.correct }} von {{ result.total }} richtig ·
+            {{ formatTime(usedSeconds) }} Minuten
+          </p>
+          <table class="parts">
+            <tr *ngFor="let part of result.parts">
+              <td>{{ part.title }}</td>
+              <td class="num">{{ part.correct }} / {{ part.total }}</td>
+              <td class="state">
+                <ng-container *ngIf="part.minCorrect !== undefined">
+                  <span [class.ok]="part.passed" [class.nok]="!part.passed">
+                    {{ part.passed ? '✓' : '✗' }} mind. {{ part.minCorrect }}
+                  </span>
+                </ng-container>
+              </td>
+            </tr>
+            <tr *ngIf="sheet.minPoints">
+              <td>Punkte gesamt</td>
+              <td class="num">{{ result.points }} / {{ result.maxPoints }}</td>
+              <td class="state">
+                <span [class.ok]="result.points >= sheet.minPoints" [class.nok]="result.points < sheet.minPoints">
+                  {{ result.points >= sheet.minPoints ? '✓' : '✗' }} mind. {{ sheet.minPoints }}
+                </span>
+              </td>
+            </tr>
+          </table>
+          <div class="actions">
+            <ion-button (click)="start()">Nochmal versuchen</ion-button>
+            <ion-button fill="outline" routerLink="/exams" routerDirection="back">Alle Prüfungsbögen</ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <h3 class="review-title">Auswertung</h3>
+      <ion-card *ngFor="let item of items; let i = index" class="review" [class.ok]="isCorrect(item)">
+        <div class="question">
+          <div class="meta">
+            <span class="badge" [class.ok]="isCorrect(item)" [class.nok]="!isCorrect(item)">
+              {{ isCorrect(item) ? '✓ richtig' : isAnswered(item) ? '✗ falsch' : '– nicht beantwortet' }}
+            </span>
+            Frage {{ i + 1 }} · {{ item.partTitle }}
+          </div>
+          <h2 class="question-text small"><app-glossary-text [text]="item.question.question"></app-glossary-text></h2>
+          <div class="images" *ngIf="item.question.pictureUrls?.length">
+            <img *ngFor="let picture of item.question.pictureUrls" [src]="'assets/images/' + picture.url" [alt]="picture.title" />
+          </div>
+          <ng-container *ngIf="item.question.open">
+            <div class="open-answer">
+              <div class="label">Antwort laut Katalog</div>
+              <div class="text"><app-glossary-text [text]="item.answers[0]?.value"></app-glossary-text></div>
+            </div>
+          </ng-container>
+          <div class="answers" *ngIf="!item.question.open">
+            <div *ngFor="let answer of item.answers; let j = index" class="answer static" [ngClass]="answerClass(item, answer)">
+              <span class="letter">{{ letters[j] }}</span>
+              <span class="value"><app-glossary-text [text]="answer.value"></app-glossary-text></span>
+            </div>
+          </div>
+          <div class="explanation" *ngIf="item.question.explanation">
+            <div class="label">Hintergrund <span class="source">KI-generiert</span></div>
+            <app-glossary-text [text]="item.question.explanation"></app-glossary-text>
+          </div>
+        </div>
+      </ion-card>
+    </ng-container>
+  </div>
+</ion-content>

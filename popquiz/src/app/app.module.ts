@@ -12,6 +12,7 @@ import { environment } from 'src/environments/environment';
 import { NgxsModule } from '@ngxs/store';
 import { QuestionsState } from 'src/app/state/questions.state';
 import { SettingsState } from 'src/app/state/settings.state';
+import { ExamState } from 'src/app/state/exam.state';
 import { NgxsLoggerPluginModule } from '@ngxs/logger-plugin';
 import { NgxsStoragePluginModule } from '@ngxs/storage-plugin';
 import { HttpClientModule } from '@angular/common/http';
@@ -26,7 +27,7 @@ import { QuestionsService } from 'src/app/questions.service';
     IonicModule.forRoot(),
     AppRoutingModule,
     HttpClientModule,
-    NgxsModule.forRoot([QuestionsState, SettingsState], {
+    NgxsModule.forRoot([QuestionsState, SettingsState, ExamState], {
       developmentMode: !environment.production,
     }),
     NgxsLoggerPluginModule.forRoot({

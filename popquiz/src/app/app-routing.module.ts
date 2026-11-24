@@ -12,6 +12,14 @@ const routes: Routes = [
     loadChildren: () => import('./home/home.module').then((m) => m.HomePageModule),
   },
   {
+    path: 'exams',
+    loadChildren: () => import('./exams/overview/exam-overview.module').then((m) => m.ExamOverviewPageModule),
+  },
+  {
+    path: 'exams/:sheetId',
+    loadChildren: () => import('./exams/sheet/exam-sheet.module').then((m) => m.ExamSheetPageModule),
+  },
+  {
     path: 'dashboard',
     loadChildren: () => import('./dashboard/dashboard.module').then((m) => m.DashboardPageModule),
   },

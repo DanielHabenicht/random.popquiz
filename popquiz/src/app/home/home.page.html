@@ -48,6 +48,15 @@
           >
             Fehler wiederholen ({{ stats.wrong }})
           </ion-button>
+          <ion-button
+            *ngIf="hasExams(entry.catalog.id)"
+            fill="clear"
+            [routerLink]="['/exams']"
+            routerDirection="root"
+          >
+            <ion-icon slot="start" name="school-outline"></ion-icon>
+            Prüfungsbögen
+          </ion-button>
         </div>
       </ion-card-content>
     </ion-card>

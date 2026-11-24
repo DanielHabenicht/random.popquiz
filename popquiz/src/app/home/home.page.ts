@@ -6,6 +6,7 @@ import { map } from 'rxjs/operators';
 import { allQuestions, Catalog, licences } from '../catalogs';
 import { CatalogStats, QuestionsService } from '../questions.service';
 import { SetCatalogHidden, SettingsState } from '../state/settings.state';
+import { examGroups } from '../exams/exams';
 
 interface CatalogEntry {
   catalog: Catalog;
@@ -41,6 +42,10 @@ export class HomePage {
       buttons: [{ text: 'Rückgängig', handler: () => this.show(catalog) }],
     });
     toast.present();
+  }
+
+  public hasExams(catalogId: string): boolean {
+    return examGroups.some((g) => g.licenceId === catalogId);
   }
 
   public show(catalog: Catalog) {

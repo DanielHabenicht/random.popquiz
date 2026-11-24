@@ -20,6 +20,7 @@ export class AppComponent {
   public version = environment.version;
   public mainPages = [
     { title: 'Übersicht', url: '/home', icon: 'home' },
+    { title: 'Prüfungsbögen', url: '/exams', icon: 'school' },
     { title: 'Statistik', url: '/dashboard', icon: 'stats-chart' },
   ];
   /** Licences the user has not hidden, plus repeating all mistakes. */

@@ -1,0 +1,352 @@
+.page {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-bottom: 24px;
+}
+
+.subtitle {
+  font-size: 0.75rem;
+  font-weight: normal;
+  opacity: 0.7;
+}
+
+.facts {
+  margin: 0 0 12px;
+  padding-left: 20px;
+  line-height: 1.7;
+  color: var(--ion-text-color, #000);
+}
+
+.hint {
+  font-size: 0.9rem;
+  color: var(--ion-color-medium-shade);
+  margin: 0 0 12px;
+}
+
+.status {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 16px 4px;
+  font-size: 0.85rem;
+  color: var(--ion-color-medium-shade);
+
+  .time {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+
+    &.over {
+      color: var(--ion-color-danger);
+    }
+  }
+}
+
+.navigator {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 6px 16px 8px;
+  scrollbar-width: thin;
+
+  button {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 2px solid var(--ion-color-step-250, #bbb);
+    background: transparent;
+    color: var(--ion-text-color, #000);
+    font: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+
+    &.answered {
+      background: var(--ion-color-primary);
+      border-color: var(--ion-color-primary);
+      color: var(--ion-color-primary-contrast);
+    }
+
+    &.current {
+      outline: 3px solid rgba(var(--ion-color-primary-rgb), 0.45);
+      outline-offset: 1px;
+    }
+  }
+}
+
+ion-card {
+  margin: 8px 8px 12px;
+}
+
+.question {
+  padding: 16px;
+  color: var(--ion-text-color, #000);
+}
+
+.meta {
+  font-size: 0.8rem;
+  color: var(--ion-color-medium-shade);
+  margin-bottom: 8px;
+}
+
+.question-text {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.4;
+  margin: 0 0 16px;
+  white-space: pre-line;
+
+  &.small {
+    font-size: 1rem;
+  }
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+
+  img {
+    max-width: 100%;
+  }
+}
+
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.self-assessment {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+
+  .answer {
+    justify-content: center;
+  }
+}
+
+.answer {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 2px solid var(--ion-color-step-200, #ccc);
+  background: var(--ion-color-step-50, #f5f5f5);
+  color: var(--ion-text-color, #000);
+  font: inherit;
+  font-size: 1rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+
+  &.static {
+    cursor: default;
+    padding: 10px 14px;
+    font-size: 0.95rem;
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(var(--ion-color-primary-rgb), 0.5);
+    outline-offset: 2px;
+  }
+
+  .letter {
+    flex-shrink: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    background: var(--ion-color-step-150, #ddd);
+  }
+
+  .value {
+    padding-top: 2px;
+
+    img {
+      display: block;
+      margin-top: 8px;
+      max-width: 100%;
+    }
+  }
+
+  &.selected {
+    border-color: var(--ion-color-primary);
+    background: rgba(var(--ion-color-primary-rgb), 0.12);
+
+    .letter {
+      background: var(--ion-color-primary);
+      color: var(--ion-color-primary-contrast);
+    }
+  }
+
+  &.right {
+    border-color: var(--ion-color-success);
+    background: rgba(var(--ion-color-success-rgb), 0.15);
+
+    .letter {
+      background: var(--ion-color-success);
+      color: var(--ion-color-success-contrast);
+    }
+  }
+
+  &.wrong {
+    border-color: var(--ion-color-danger);
+    background: rgba(var(--ion-color-danger-rgb), 0.12);
+
+    .letter {
+      background: var(--ion-color-danger);
+      color: var(--ion-color-danger-contrast);
+    }
+  }
+
+  &.other {
+    opacity: 0.6;
+  }
+}
+
+.open-answer {
+  border-left: 4px solid var(--ion-color-primary);
+  background: var(--ion-color-step-50, #f5f5f5);
+  border-radius: 6px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
+
+  .label {
+    font-size: 0.8rem;
+    color: var(--ion-color-medium-shade);
+    margin-bottom: 4px;
+  }
+
+  .text {
+    white-space: pre-line;
+    line-height: 1.5;
+  }
+}
+
+.explanation {
+  border-radius: 6px;
+  padding: 10px 14px;
+  margin-top: 4px;
+  background: rgba(var(--ion-color-warning-rgb), 0.12);
+  border-left: 4px solid var(--ion-color-warning);
+  font-size: 0.9rem;
+  line-height: 1.5;
+
+  .label {
+    display: flex;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--ion-color-warning-shade);
+    margin-bottom: 2px;
+
+    .source {
+      margin-left: auto;
+      font-weight: normal;
+      color: var(--ion-color-medium-shade);
+    }
+  }
+}
+
+.nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 8px;
+
+  ion-button {
+    margin: 0;
+  }
+}
+
+.result {
+  text-align: center;
+  border: 2px solid transparent;
+
+  &.passed {
+    border-color: var(--ion-color-success);
+  }
+
+  &.failed {
+    border-color: var(--ion-color-danger);
+  }
+
+  ion-icon {
+    font-size: 56px;
+  }
+
+  &.passed ion-icon {
+    color: var(--ion-color-success);
+  }
+
+  &.failed ion-icon {
+    color: var(--ion-color-danger);
+  }
+
+  h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 4px 0;
+    color: var(--ion-text-color, #000);
+  }
+
+  .score {
+    margin-bottom: 12px;
+  }
+
+  .parts {
+    margin: 0 auto 12px;
+    border-collapse: collapse;
+    text-align: left;
+    color: var(--ion-text-color, #000);
+
+    td {
+      padding: 4px 8px;
+    }
+
+    .num {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+
+    ion-button {
+      margin: 0;
+    }
+  }
+}
+
+.ok {
+  color: var(--ion-color-success-shade);
+}
+
+.nok {
+  color: var(--ion-color-danger);
+}
+
+.review-title {
+  margin: 20px 16px 4px;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.review {
+  .badge {
+    font-weight: 600;
+    margin-right: 6px;
+  }
+}
