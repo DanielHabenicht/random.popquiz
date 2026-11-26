@@ -8,9 +8,10 @@ export class SetQuestionsState {
   constructor(public id: string, public state: QuestionsStateEnum) {}
 }
 
-/** Forgets all answers. */
+/** Forgets the answers of the given questions (or of all questions). Marks are kept. */
 export class ResetQuestionsState {
   public static readonly type: string = '[Questions State] Reset questions state';
+  constructor(public ids?: string[]) {}
 }
 
 /** Marks / unmarks a question to practise it again later. */
@@ -71,14 +72,27 @@ export class QuestionsState {
           right: right,
           wrong: wrong,
           ratio: wrong !== 0 ? right / wrong : 1,
+          lastSeen: Date.now(),
         },
       },
     });
   }
 
   @Action(ResetQuestionsState)
-  public reset(ctx: StateContext<QuestionsStateModel>) {
-    ctx.setState({ ...ctx.getState(), questionsState: {} });
+  public reset(ctx: StateContext<QuestionsStateModel>, action: ResetQuestionsState) {
+    const state = ctx.getState();
+    if (!action.ids) {
+      ctx.setState({ ...state, questionsState: {} });
+      return;
+    }
+    const remove = new Set(action.ids);
+    const questionsState: QuestionStateDictionary = {};
+    for (const id of Object.keys(state.questionsState)) {
+      if (!remove.has(id)) {
+        questionsState[id] = state.questionsState[id];
+      }
+    }
+    ctx.setState({ ...state, questionsState });
   }
 }
 
@@ -87,6 +101,8 @@ export interface QuestionState {
   wrong: number;
   right: number;
   ratio?: number;
+  /** When the question was answered the last time (ms since 1970); missing for answers from older app versions. */
+  lastSeen?: number;
 }
 
 export type QuizMode = 'failed80' | 'failed' | 'unanswered' | 'marked';

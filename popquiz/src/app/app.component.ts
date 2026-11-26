@@ -4,8 +4,11 @@ import { AlertController, Platform, ToastController } from '@ionic/angular';
 import { Store } from '@ngxs/store';
 import { licences } from './catalogs';
 import { ResetQuestionsState } from './state/questions.state';
+import { ResetExamResults } from './state/exam.state';
+import { examGroups } from './exams/exams';
+import { QuestionsService } from './questions.service';
 import { SettingsState } from './state/settings.state';
-import { map } from 'rxjs/operators';
+import { map, take } from 'rxjs/operators';
 import { SwUpdate } from '@angular/service-worker';
 import { SplashScreen } from '@ionic-native/splash-screen/ngx';
 import { StatusBar } from '@ionic-native/status-bar/ngx';
@@ -41,7 +44,8 @@ export class AppComponent {
     private swUpdate: SwUpdate,
     private toastController: ToastController,
     private alertController: AlertController,
-    private store: Store
+    private store: Store,
+    private questionService: QuestionsService
   ) {
     this.initializeApp();
     this.offerUpdates();
@@ -82,28 +86,72 @@ export class AppComponent {
     });
   }
 
+  /** Lets the user choose what to reset: everything, one licence or only the exam results. */
   public async resetProgress() {
     const alert = await this.alertController.create({
-      header: 'Fortschritt zurücksetzen?',
-      message: 'Alle deine Antworten in allen Fragenkatalogen werden gelöscht. Das kann nicht rückgängig gemacht werden.',
+      header: 'Fortschritt zurücksetzen',
+      message: 'Was soll zurückgesetzt werden? Markierte Fragen bleiben erhalten.',
+      inputs: [
+        { type: 'radio', label: 'Alles', value: 'all', checked: true },
+        ...licences.map((c) => ({ type: 'radio' as const, label: c.title, value: c.id })),
+        { type: 'radio', label: 'Nur Prüfungsergebnisse', value: 'exams' },
+      ],
       buttons: [
         { text: 'Abbrechen', role: 'cancel' },
-        {
-          text: 'Zurücksetzen',
-          role: 'destructive',
-          cssClass: 'danger',
-          handler: () => {
-            this.store.dispatch(new ResetQuestionsState()).subscribe(async () => {
-              const toast = await this.toastController.create({
-                message: 'Fortschritt wurde zurückgesetzt.',
-                duration: 2000,
-              });
-              toast.present();
-            });
-          },
-        },
+        { text: 'Weiter', handler: (choice: string) => this.confirmReset(choice) },
       ],
     });
     await alert.present();
+  }
+
+  private async confirmReset(choice: string) {
+    const licence = licences.find((c) => c.id === choice);
+    let message: string;
+    if (choice === 'all') {
+      message = 'Alle Antworten in allen Fragenkatalogen und alle Prüfungsergebnisse werden gelöscht.';
+    } else if (choice === 'exams') {
+      message = 'Die Ergebnisse aller Prüfungsbögen werden gelöscht. Deine Antworten im Lernmodus bleiben erhalten.';
+    } else {
+      message = `Alle Antworten und Prüfungsergebnisse für „${licence.title}“ (${licence.subtitle}) werden gelöscht.`;
+      if (licence.types.includes('basic')) {
+        message += ' Die Basisfragen gehören zu allen SBF-Scheinen und werden dort ebenfalls zurückgesetzt.';
+      }
+    }
+    const confirm = await this.alertController.create({
+      header: 'Wirklich zurücksetzen?',
+      message: message + ' Das kann nicht rückgängig gemacht werden.',
+      buttons: [
+        { text: 'Abbrechen', role: 'cancel' },
+        { text: 'Zurücksetzen', role: 'destructive', cssClass: 'danger', handler: () => this.reset(choice) },
+      ],
+    });
+    await confirm.present();
+  }
+
+  private reset(choice: string) {
+    const done = async () => {
+      const toast = await this.toastController.create({ message: 'Fortschritt wurde zurückgesetzt.', duration: 2000 });
+      toast.present();
+    };
+    if (choice === 'all') {
+      this.store.dispatch([new ResetQuestionsState(), new ResetExamResults()]).subscribe(done);
+      return;
+    }
+    if (choice === 'exams') {
+      this.store.dispatch(new ResetExamResults()).subscribe(done);
+      return;
+    }
+    const licence = licences.find((c) => c.id === choice);
+    const sheetIds = examGroups
+      .filter((g) => g.licenceId === choice)
+      .reduce((ids, g) => ids.concat(g.sheets.map((s) => s.id)), [] as string[]);
+    this.questionService
+      .questionsOf(licence)
+      .pipe(take(1))
+      .subscribe((questions) => {
+        this.store
+          .dispatch([new ResetQuestionsState(questions.map((q) => q.id)), new ResetExamResults(sheetIds)])
+          .subscribe(done);
+      });
   }
 }

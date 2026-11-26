@@ -25,6 +25,10 @@ export interface NextQuestion {
 
 /** How many of the last questions are not asked again right away (if there are enough other questions). */
 const RECENT_HISTORY = 10;
+/** Share of picks that show a question never answered before (as long as there are such questions). */
+const UNSEEN_SHARE = 0.8;
+/** Already answered questions are picked from this share of the ones answered longest ago. */
+const OLDEST_SHARE = 0.2;
 
 @Injectable({
   providedIn: 'root',
@@ -92,12 +96,28 @@ export class QuestionsService {
         const historySize = Math.min(RECENT_HISTORY, pool.length - 1);
         const recent = new Set(this.recent.slice(0, historySize));
         const candidates = pool.filter((q) => !recent.has(q.id));
-        const question = candidates[Math.floor(Math.random() * candidates.length)];
+        const question = pickQuestion(candidates, state);
         this.recent = [question.id, ...this.recent.filter((id) => id !== question.id)].slice(0, RECENT_HISTORY);
         return { question, remaining: pool.length };
       })
     );
   }
+}
+
+/**
+ * Prefers questions that were never answered. Otherwise picks one of the questions that were answered
+ * the longest time ago, so a question that was just answered (e.g. wrong) waits until the others had their turn.
+ */
+function pickQuestion(candidates: Question[], state: { [id: string]: QuestionState }): Question {
+  const random = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
+  const unseen = candidates.filter((q) => !state[q.id]);
+  const seen = candidates.filter((q) => !!state[q.id]);
+  if (unseen.length > 0 && (seen.length === 0 || Math.random() < UNSEEN_SHARE)) {
+    return random(unseen);
+  }
+  const oldestFirst = [...seen].sort((a, b) => (state[a.id].lastSeen || 0) - (state[b.id].lastSeen || 0));
+  const count = Math.max(1, Math.min(10, Math.ceil(oldestFirst.length * OLDEST_SHARE)));
+  return random(oldestFirst.slice(0, count));
 }
 
 function matchesMode(state: QuestionState | undefined, mode: QuizMode): boolean {

@@ -8,6 +8,12 @@ export class SaveExamResult {
   constructor(public sheetId: string, public result: ExamResult) {}
 }
 
+/** Forgets the results of the given sheets (or of all sheets). */
+export class ResetExamResults {
+  public static readonly type: string = '[Exam] Reset results';
+  constructor(public sheetIds?: string[]) {}
+}
+
 export interface SheetResults {
   last: ExamResult;
   attempts: number;
@@ -46,5 +52,21 @@ export class ExamState {
         },
       },
     });
+  }
+
+  @Action(ResetExamResults)
+  public reset(ctx: StateContext<ExamStateModel>, action: ResetExamResults) {
+    if (!action.sheetIds) {
+      ctx.patchState({ results: {} });
+      return;
+    }
+    const remove = new Set(action.sheetIds);
+    const results = { ...(ctx.getState().results || {}) };
+    for (const id of Object.keys(results)) {
+      if (remove.has(id)) {
+        delete results[id];
+      }
+    }
+    ctx.patchState({ results });
   }
 }
